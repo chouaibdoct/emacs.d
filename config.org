@@ -1,0 +1,833 @@
+
+* Emacs General
+#+begin_src emacs-lisp :tangle yes
+(setq gc-cons-threshold 100000000)
+  (setq read-process-output-max (* 1024 1024))
+
+#+end_src
+** Packages init
+#+begin_src emacs-lisp :tangle yes
+  (use-package package
+    :config
+    (add-to-list 'package-archives
+                 '("melpa" . "https://melpa.org/packages/")
+                 ;;		 '("org" . "https://orgmode.org/elpa/")
+                 )
+    (setq package-enable-at-startup nil)
+   ;; (package-initialize)
+    )
+
+  ;;   (setq package-enable-at-startup nil)
+
+  ;;   (add-to-list 'package-archives
+  ;;                '("melpa" . "https://melpa.org/packages/")
+  ;;   ;;	     '("org" . "https://orgmode.org/elpa/")
+  ;;                )
+  ;;   ;;(add-to-list 'load-path "~/.emacs.d/lisp")
+  ;; ;;  (require 'package)
+
+
+  (use-package use-package
+    :custom
+    (use-package-always-ensure t)
+    (package-native-compile t)
+    (warning-minimum-level :error))
+#+end_src
+** general conf
+#+begin_src emacs-lisp :tangle yes
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+
+  (when window-system (scroll-bar-mode -1))
+  (setq inhibit-startup-message t)
+  ;;      (set-face-attribute 'default nil :height 102)
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+          ;;(set-fringe-mode 10)
+          ;;(setq visible-bell 1)
+  (setq split-height-threshold nil)  ;; for vertical split
+  (setq split-width-threshold 120)
+
+  (setq make-backup-files nil) ;; do not make backup files
+
+  (setq display-time-24hr-format t)
+  (setq display-time-format "|%H:%M  %d-%m-%Y|")
+  (display-time-mode 1)
+  (display-battery-mode 1)
+  (add-hook 'prog-mode-hook 'electric-pair-mode)
+  (global-auto-revert-mode 1)
+          ;;(when window-system (add-hook 'prog-mode-hook 'global-hl-line-mode t))
+  (defalias 'yes-or-no-p 'y-or-n-p)
+  (setq scroll-conservatively 100)
+
+  ;; (if window-system
+  ;;     (global-set-key (kbd "<C-return>") 'ansi-term)
+  ;;   (global-set-key (kbd "<C-RET>") 'ansi-term))
+
+  (setq ring-bell-function 'ignore)
+                                          ;(when window-system (global-hl-line-mode t))
+  (global-prettify-symbols-mode t) 
+  (setq make-backup-file nil)
+  ;;(setq auto-save-default nil)
+  ;;(line-number-mode t)
+  (column-number-mode t)
+  (show-paren-mode t) 
+  (custom-set-faces
+   ;; custom-set-faces was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(show-paren-match ((t (:background "green")))))
+   ;only for doom-snazy
+  ;; (setq show-paren-style 'mixed)
+  ;; (global-set-key (kbd "C-M-h") 'mark-defun) 
+  (setq custom-safe-themes t)
+
+  ;;transparency
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (defun opacity (value)
+     "Sets the transparency of the frame window. 0=transparent/100=opaque"
+     (interactive "nTransparency Value 0 - 100 opaque:")
+     (set-frame-parameter (selected-frame) 'alpha value))
+
+#+end_src
+*** copying/yank
+#+begin_src emacs-lisp :tangle yes
+  ;;;copy line
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (defun kill-thing-at-point (thing)
+    "Kill the `thing-at-point' for the specified kind of THING."
+    (let ((bounds (bounds-of-thing-at-point thing)))
+      (if bounds
+          (kill-region (car bounds) (cdr bounds))
+        (error "No %s at point" thing))))
+
+  (defun copy-thing-at-point (thing)
+    "Copy the `thing-at-point' for the specified kind of THING."
+    (let ((bounds (bounds-of-thing-at-point thing)))
+      (if bounds
+          (copy-region-as-kill (car bounds) (cdr bounds))
+        (error "No %s at point" thing))))
+
+  (defun kill-word-at-point ()
+    "Kill the word at point."
+    (interactive)
+    (kill-thing-at-point 'word))
+
+  (defun copy-line-at-point ()
+    "copy the line at point."
+    (interactive)
+    (copy-thing-at-point 'line))
+
+  (defun copy-word-at-point()
+    "copy the word at point"
+    (interactive)
+    (copy-thing-at-point 'word)
+    )
+
+  (defun kill-line-at-point()
+    "kill the line at point"
+    (interactive)
+    (kill-thing-at-point 'line)
+    )
+
+  (global-set-key (kbd "C-d")  (quote copy-word-at-point))
+  (global-set-key (kbd "M-d")  (quote kill-word-at-point))
+  (global-set-key (kbd "M-k")  (quote copy-line-at-point))
+  (global-set-key (kbd "s-k")  (quote kill-line-at-point))
+
+#+end_src
+*** delete
+#+begin_src emacs-lisp :tangle yes
+(pending-delete-mode t)
+#+end_src
+** window management
+#+begin_src emacs-lisp :tangle yes
+    ;; windows management 
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    (global-set-key (kbd "C-x <up>") 'windmove-up)
+    (global-set-key (kbd "C-x <down>") 'windmove-down)
+    (global-set-key (kbd "C-x <left>") 'windmove-left)
+    (global-set-key (kbd "C-x <right>") 'windmove-right)
+
+    (global-set-key (kbd "C-x C-<right>") 'windmove-swap-states-right)
+    (global-set-key (kbd "C-x C-<left>") 'windmove-swap-states-left)
+    (global-set-key (kbd "C-x C-<down>") 'windmove-swap-states-down)
+    (global-set-key (kbd "C-x C-<up>") 'windmove-swap-states-up)
+
+
+    (global-set-key (kbd "C-x f") 'find-file-other-window)
+
+
+
+    ;;(byte-recompile-file "~/.emacs.d/lisp/framemove.el")
+    ;;(load "~/.emacs.d/lisp/framemove")
+    ;;(require 'framemove)
+    ;; (setq framemove-hook-into-windmove t)
+    ;; (windmove-default-keybindings '(kdb "C-x"))
+    (use-package framemove
+      :load-path "~/.emacs.d/lisp/"
+      ;; :defer t
+      :config
+      (setq framemove-hook-into-windmove t)
+      )
+
+    (defun split-and-follow-horizontally()
+      (interactive)
+      (split-window-below)
+      ;;    (balance-windows)
+      (other-window 1))
+    (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
+
+    (defun split-and-follow-vertically()
+      (interactive)
+      (split-window-right)
+      ;;    (balance-windows)
+      (other-window 1))
+    (global-set-key (kbd "C-x 3") 'split-and-follow-vertically) 
+
+
+  ;; (defun delete-window-when-kill-buffer()
+  ;;   (interactive)
+  ;;   (kill-buffer)
+  ;;   (delete-window)
+  ;;   )
+  ;; (global-set-key (kbd "C-x k") 'delete-window-when-kill-buffer)
+  ;; (global-set-key (kbd "C-x k") 'kill-buffer)
+#+end_src
+** hideshow
+#+begin_src emacs-lisp :tangle yes
+(use-package hideshow
+    :init (add-hook #'prog-mode-hook #'hs-minor-mode)
+    :diminish hs-minor-mode
+
+    :config
+    (defun ll ()
+    (interactive)
+    (hs-hide-level 2))
+    (define-key hs-minor-mode-map (kbd "C-*") 'hs-hide-level)
+    (define-key hs-minor-mode-map (kbd "<C-kp-add>") 'hs-show-block)
+    (define-key hs-minor-mode-map (kbd "<C-kp-subtract>") 'hs-hide-block)
+    (add-hook 'c++-mode-hook 'll)
+   ;;; Add `json-mode' and `javascript-mode' to the list
+   ;;; (setq hs-special-modes-alist
+   ;;; 	(mapcar 'purecopy
+   ;;; 		'((js-mode "{" "}" "/[*/]" nil)
+   ;;; 		  (json-mode "{" "}" "/[*/]" nil)
+   ;;; 		  (javascript-mode  "{" "}" "/[*/]" nil))))
+    )
+#+end_src
+** which-key/rainbow/vundo
+#+begin_src emacs-lisp :tangle yes
+  (use-package which-key
+    :ensure t
+    :diminish 
+    :init (which-key-mode))
+
+  (use-package rainbow-delimiters
+    :ensure t
+    :diminish
+    :hook (prog-mode . rainbow-delimiters-mode)
+    )
+
+  (use-package gcmh
+    :ensure t
+    :hook
+    (after-init-hook . gcmh-mode)
+    :init
+    (setq gcmh-idle-delay 5)
+    (setq gcmh-high-cons-threshold (* 16 1024 1024)) ; 16MB
+    (setq gcmh-verbose init-file-debug))
+
+  ;; (use-package undo-tree
+  ;;   :ensure t
+  ;;   :diminish
+  ;;   ;;    :bind ("C-M-u" . undo-tree-visualize )
+  ;;   :config
+  ;;   (global-undo-tree-mode))
+
+  (use-package vundo
+    :ensure t
+    :custom
+    (vundo-compact-display t)
+    (vundo-glyph-alist vundo-unicode-symbols)
+    :config
+    :bind (("C-_" . (lambda()(interactive) (undo) (vundo)))
+           ("M-_" . (lambda()(interactive) (undo-redo) (vundo)))
+           :map vundo-mode-map
+           ("C-_" . vundo-backward)
+           ("M-_" . vundo-forward)
+           )
+    )
+
+#+end_src
+** expand-region
+#+begin_src emacs-lisp :tangle yes
+(use-package expand-region
+  :ensure t
+  :bind (("C-M-SPC" . er/expand-region)
+	 ("M--" . er/contract-region))
+  )
+#+end_src
+
+* org-mode
+#+begin_src emacs-lisp :tangle yes
+  (use-package org
+    :defer t
+    :config
+    (setq org-hide-emphasis-markers t ;; for *bold* to look bold wothout stars 
+          org-ellipsis " ▾"
+          ;;	org-deadline-warning-days 14 ;;to warn n days before deadline date
+          org-pretty-entities t
+          org-startup-with-inline-images t
+          org-startup-indented t
+          org-agenda-start-with-log-mode t
+          org-log-done t
+          org-log-into-drawer t
+          org-directory "~/org"
+          )
+
+    (dolist (face '((org-level-1 . 1.2)
+                    (org-level-2 . 1.15)
+                    ))
+      (set-face-attribute (car face) nil :weight 'medium  :height (cdr face))) ;; :weight 'medium  :height (cdr face)
+
+    ;; (use-package org-bullets
+    ;;   :hook (org-mode . org-bullets-mode)
+    ;;   :defer t
+    ;;   :config
+    ;;   (setq org-bullets-bullet-list '(  "❖" "✸" "✮" "◉" "⁑" "⁂" )) ;;"✱" "◉" "○" "●" "○" "●" "○" "●"
+    ;;   )
+
+    :hook (;;(org-mode . org-indent-mode )
+           (org-mode . visual-line-mode )
+           )
+    :bind  ( ("C-c a" . org-agenda)
+             ("C-c c" . org-capture)
+            :map org-mode-map
+           ("C-c l" . org-store-link)
+           )
+    )
+
+  (use-package org-modern
+    :ensure t
+    :after org
+    :hook (org-mode . org-modern-mode)
+    )
+#+end_src
+** olivetti
+#+begin_src emacs-lisp :tangle yes
+(use-package olivetti
+  :ensure t
+  :defer t
+  :init
+;  (setq olivetti-body-width .67)
+  :config
+;  :hook (org-mode . olivetti-mode)
+  )
+#+end_src
+** org-noter
+#+begin_src emacs-lisp :tangle no
+(use-package org-noter
+  :config
+  ;;  (setq org-noter-notes-search-path        '("~/your/path/to/notes"))
+  ;;  (setq org-noter-default-notes-file-names '("notes.org"))
+  (with-eval-after-load 'org-noter
+    (setq org-noter-arrow-background-color "cyan"
+	  org-noter-arrow-foreground-color "black"))
+  :custom
+  (org-noter-auto-save-last-location t)
+  ;; (org-noter-notes-search-path        '("~/your/path/to/notes"))
+  ;; (org-noter-default-notes-file-names '("notes.org"))
+  ;;(org-noter-notes-window-behavior '(start scroll))
+  (org-noter-always-create-frame nil)
+  (org-noter-use-indirect-buffer t)
+
+  ;; (org-noter-notes-window-location 'horizontal-split)
+  ;; (org-noter-doc-split-fraction '(0.5 . 0.5))
+  ;; (org-noter-disable-narrowing nil)
+  ;; (org-noter-swap-window nil)
+  ;; (org-noter-hide-other t)
+  )
+#+end_src
+* denote
+#+begin_src emacs-lisp :tangle yes
+(use-package denote
+  :ensure t
+  :config
+  ;;
+  ;; General key bindings
+  (setq denote-directory (expand-file-name "~/orgfiles/denote"))
+;;  (setq denote-known-keywords '("GC" "doct"))
+  (setq denote-infer-keywords t)
+  (setq denote-sort-keywords t)
+  (setq denote-file-type 'org)
+  ;;
+  ;; Tweaking the frontmatter
+  (setq denote-org-front-matter
+        "#+title: %s\n#+date: %s\n#+filetags: %s\n#+identifier: %s\n#+author:\n#+startup: content\n")
+  :bind
+  ("C-c n n" . denote-open-or-create)
+  ("C-c n l" . denote-link-or-create)
+  ("C-c n b" . denote-link-find-file)
+  ("C-c n B" . denote-link-backlinks))
+#+end_src
+* citar-denote
+#+begin_src emacs-lisp :tangle yes
+(use-package citar-denote
+  :config
+  (citar-denote-mode)
+  (setq citar-open-always-create-notes t)
+  :bind (("C-c n c c" . citar-create-note)
+         ("C-c n c a" . citar-denote-add-citekey)
+         ("C-c n c x" . citar-denote-remove-citekey)
+         ("C-c d c o" . citar-denote-open-note)
+         ("C-c n c d" . citar-denote-dwim)
+         ("C-c n c r" . citar-denote-find-reference)
+         ("C-c n c f" . citar-denote-find-citation)
+         ("C-c n c n" . citar-denote-find-nocite)))
+#+end_src
+* themes
+#+begin_src emacs-lisp :tangle yes
+  (use-package doom-themes
+    :ensure t
+    :defer t
+    :config
+    (doom-themes-visual-bell-config)
+    )
+  (use-package doom-modeline
+      :ensure t
+      :defer t
+      )
+
+  (use-package ef-themes
+      :ensure t
+      :config
+      ;; (setq ef-themes-mixed-fonts t
+      ;; 	  ef-themes-variable-pitch-ui t)
+      (load-theme 'ef-day)
+      )
+#+end_src
+* vertico / margilinea consult embark
+#+begin_src emacs-lisp :tangle yes
+  (use-package vertico
+    :ensure t
+    :init
+    (vertico-mode)
+    )
+
+  (use-package savehist
+    :init
+    (savehist-mode))
+
+  (use-package marginalia
+    :after vertico
+    :ensure t
+    :custom
+    (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nill))
+    :init (marginalia-mode)
+    )
+  (use-package consult 
+    :ensure t
+    :demand t
+    :bind (
+           ("C-s" . consult-line)
+  ;;	 ("C-s" . consult-line)
+
+           ("C-x b" . consult-buffer)
+           ("C-c i" . consult-imenu)
+           ("C-c C-i" . consult-imenu-multi)
+           ("C-x C-b" . consult-buffer-other-window)
+           ("C-x j" . cousult-bookmark)
+           ("C-c b" . consult-project-buffer)
+  ;;	 ("C-y" . consult-yank-from-kill-ring)
+           ("M-y" . consult-yank-pop)
+           ("M-g M-g" . consult-goto-line-numbers)
+           ("C-x m" . consult-global-mark)
+
+           :map minibuffer-local-map
+           ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+           ("M-r" . consult-history)
+
+           )
+    :custom
+    (completion-in-region-function #'consult-completion-in-region)
+
+    ;; (consult-buffer-filter '("\\` " "\\`\\*.*\\*\\'"))
+    (consult-buffer-filter
+     '("\\` " "\\`\\*Completions\\*\\'" "\\`\\*Flymake log\\*\\'" "\\`\\*Semantic SymRef\\*\\'" "\\`\\*tramp/.*\\*\\'" "\\`\\*EGLOT.*\\*\\'" "\\`\\*Async-native-compile-log*\\*\\'" "\\`\\*Messages*\\*\\'" "\\`\\*scratch*\\*\\'") )
+
+    :hook (completion-list-mode . consult-preview-at-point-mode)
+
+    :init
+    (setq xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref)
+
+    :config
+    ;; (consult-customize
+    ;;  consult-theme :preview-key '(:debounce 0.2 any)
+    ;;  consult-ripgrep consult-git-grep consult-grep
+    ;;  consult-bookmark consult-recent-file consult-xref
+    ;;  consult--source-bookmark consult--source-file-register
+    ;;  consult--source-recent-file consult--source-project-recent-file
+    ;;  ;; :preview-key (kbd "M-.")
+    ;;  :preview-key '(:debounce 0.4 any))
+
+    ;; Optionally configure the narrowing key.
+    ;; Both < and C-+ work reasonably well.
+
+
+    ;; By default `consult-project-function' uses `project-root' from project.el.
+    ;; Optionally configure a different project root function.
+    ;; There are multiple reasonable alternatives to chose from.
+    ;;;; 1. project.el (the default)
+    ;; (setq consult-project-function #'consult--default-project--function)
+    ;;;; 2. projectile.el (projectile-project-root)
+    ;; (autoload 'projectile-project-root "projectile")
+    ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
+    ;;;; 3. vc.el (vc-root-dir)
+    ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
+    ;;;; 4. locate-dominating-file
+    ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
+    )
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (use-package embark
+    :ensure t
+    :bind(("C-h B " . embark-bindings)
+  ;;        :map minibuffer-local-map
+          ("M-+" . embark-act)
+          ("C-." . embark-dwim)
+
+          )
+    :init
+    ;;  (setq prefix-help-command #'embark-prefix-help-command)
+    ;;  (aqdd-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+
+    )
+
+  (use-package embark-consult
+    :ensure t ; only need to install it, embark loads it after consult if found
+    :hook
+    (embark-collect-mode . consult-preview-at-point-mode))
+
+#+end_src
+
+** orderless
+#+begin_src emacs-lisp :tangle yes
+  (use-package orderless
+    :ensure t
+    :custom
+    ;; (completion-styles '(orderless basic))
+    ;; (completion-category-overrides '((file (styles basic partial-completion)))))
+    (completion-styles '(partial-completion orderless )) ;;flex flex initials partial-completion
+    (completion-category-defaults nil )  ;;'((eglot (styles orderless)))
+    ;; (completion-category-overrides '((eglot (styles orderless))))
+      (completion-category-overrides     '((file (styles partial-completion))))
+    )
+#+end_src
+
+** corefu
+#+begin_src emacs-lisp :tangle yes
+  (use-package corfu
+    :ensure t
+    ;;  :demand t
+    :custom
+    (corfu-auto t)
+    (corfu-auto-delay 0.1)
+    (corfu-auto-prefix 2)
+    (corfu-echo-documentation 0.25)
+    (corfu-preview-current 'insert)
+    :init
+    (global-corfu-mode)
+    :config
+    (defun corfu-move-to-minibuffer ()
+      (interactive)
+      (pcase completion-in-region--data
+        (`(,beg ,end ,table ,pred ,extras)
+         (let ((completion-extra-properties extras)
+               completion-cycle-threshold completion-cycling)
+           (consult-completion-in-region beg end table pred)))))
+    (keymap-set corfu-map "M-m" #'corfu-move-to-minibuffer)
+    (add-to-list 'corfu-continue-commands #'corfu-move-to-minibuffer)
+    :hook (completion-in-region . corfu-move-to-minibuffer)
+
+    )
+#+end_src
+* vterm
+#+begin_src emacs-lisp :tangle yes
+(use-package vterm
+  :ensure t
+  :config
+  (setq vterm-module-cmake-args "-DUSE_SYSTEM_LIBVTERM=yes")
+  )
+
+(use-package vterm-toggle
+  :ensure t
+ ; :bind ("<C-return>" . vterm-toggle)
+  )
+#+end_src
+* yasnippet
+#+begin_src emacs-lisp :tangle yes
+  (use-package yasnippet
+      :ensure t
+      :defer t
+      :config
+      (use-package yasnippet-snippets
+        :ensure t
+        :defer t
+        )
+  ;;    (yas-reload-all)
+      ;; (add-hook 'c++-mode-hook 'yas-minor-mode)
+      ;; (add-hook 'c++-mode 'yas-reload-all)
+      ;;(add-hook 'yas-global-mode-hook 'yas-reload-all)
+      )
+#+end_src
+
+* flymake / flycheck
+#+begin_src emacs-lisp :tangle yes
+  (use-package flymake
+    :defer t
+    :bind ( :map flymake-mode-map
+            ("M-n" . flymake-goto-next-error)
+            ("M-p" . flymake-goto-prev-error)
+
+            )
+    )
+#+end_src
+#+begin_src emacs-lisp :tangle no
+(use-package flycheck
+  :ensure t
+  :defer t
+  :bind (:map flycheck-mode-map
+	     ("M-n" . flycheck-next-error)
+	     ("M-p" . flycheck-previous-error)
+	     )
+    )
+#+end_src
+
+
+
+* flyspell/jinx
+#+begin_src emacs-lisp :tangle no
+(use-package flyspell
+  ;; :ensure t				
+  :defer t
+  :config
+  (setq ispell-program-name "hunspell"
+        ispell-default-dictionary "en_US")
+  ;; (use-package consult-flyspell
+  ;;   :ensure t
+  ;;   :defer t
+  ;;   )
+  ;; (use-package flyspell-correct
+  ;;   :ensure t
+  ;;   :defer t
+  ;;   )
+  ;; :hook (text-mode . flyspell-mode)
+  :bind (;;("M-<f7>" . flyspell-buffer)
+	 :map flyspell-mode-map
+	 ("<f7>" . flyspell-word)
+         ("C-." . flyspell-correct-at-point)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package jinx
+    :hook (org-mode . global-jinx-mode)
+    :config
+    (add-to-list 'vertico-multiform-categories
+                 '(jinx grid (vertico-grid-annotate . 20)))
+    (vertico-multiform-mode 1)
+    :bind (("M-$" . jinx-correct)
+           ("C-M-$" . jinx-languages)))
+
+#+end_src
+
+* eglot
+#+begin_src emacs-lisp :tangle yes
+(use-package eglot
+  :ensure t
+  :defer t
+;;  :after (yasnippet) ;; flycheck  flymake
+  :init
+  (yas-global-mode 1)
+  :config
+  (with-eval-after-load 'eglot
+        (add-to-list 'eglot-server-programs
+            '((c-mode c++-mode)
+                 . ("~/qt/Tools/QtCreator/libexec/qtcreator/clang/bin/clangd"
+                       "-j=1"
+                       "--log=error"
+                       "--malloc-trim"
+                       "--background-index"
+		       "--background-index-priority=background" ;;; =background  ; low    ;normal 
+                       "--clang-tidy"
+                       "--cross-file-rename"
+                       "--completion-style=detailed"
+                       "--pch-storage=disk"
+                       "--header-insertion=never"
+                       "--header-insertion-decorators=0"))))
+  (with-eval-after-load 'eglot
+        (add-to-list 'eglot-server-programs
+            '(qml-mode
+                 . ("~/qt/6.4.2/gcc_64/bin/qmlls" "--build-dir=~/qttest/gallery/build/"))))
+  :hook
+  ((c-mode-common . eglot-ensure))
+  :bind (:map eglot-mode-map
+	  ("M-RET" . eglot-code-actions)
+	  ("C-c r" . eglot-rename)
+	  ("C-c f" . eglot-format-buffer)
+;;	  ("C-." . xref-find-definitions-other-window)
+	) 
+  
+  )
+#+end_src
+
+* eldoc-box
+#+begin_src emacs-lisp :tangle yes
+(use-package eldoc-box
+  :ensure t
+  :defer t
+  :after eglot
+  :config
+  (add-hook 'eglot-managed-mode-hook #'eldoc-box-hover-mode t)
+  )
+#+end_src
+
+
+* magit / diff-h
+
+#+begin_src emacs-lisp :tangle yes
+(use-package magit
+  :ensure t
+  :defer t
+  :commands (magit-status)
+  :bind ("C-x g" . magit-status)
+  )
+
+(use-package diff-hl
+  :ensure t
+  :defer t
+  :config
+  (global-diff-hl-mode 1)
+  (diff-hl-flydiff-mode 1)
+  (diff-hl-margin-mode 1)
+  (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+  )
+
+#+end_src
+
+* emacs
+
+#+begin_src emacs-lisp :tangle yes
+(use-package emacs
+  :init
+  ;; TAB cycle if there are only few candidates
+  (setq completion-cycle-threshold 1)
+
+  ;; Emacs 28: Hide commands in M-x which do not apply to the current mode.
+  ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
+  ;; (setq read-extended-command-predicate
+  ;;       #'command-completion-default-include-p)
+
+  ;; Enable indentation+completion using the TAB key.
+  ;; `completion-at-point' is often bound to M-TAB.
+  (setq tab-always-indent 'complete)
+  :config
+  (setq hl-line-sticky-flag nil)
+  (add-hook 'prog-mode-hook 'hl-line-mode)
+
+  :bind( :map global-map
+	 ("C-c p c" . recompile)
+	 ("C-." . xref-find-definitions-other-window))
+  
+  )
+#+end_src
+
+
+* restclient
+#+begin_src emacs-lisp :tangle yes
+(use-package restclient
+  :ensure t
+  :defer t
+  )
+#+end_src
+
+* pdf-tools
+#+begin_src emacs-lisp :tangle yes
+(use-package pdf-tools
+  :ensure t
+  :defer t
+  :commands (pdf-view-mode pdf-tools-install)
+  :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
+  :magic ("%PDF" . pdf-view-mode)
+  :config
+  (pdf-tools-install)
+  (setq pdf-view-resize-factor 1.1)
+  (setq-default pdf-view-display-size 'fit-width)
+  (define-pdf-cache-function pagelabels)
+
+  (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
+  ;; (define-key pdf-view-mode-map (kbd "h") 'pdf-annot-add-highlight-markup-annotation)
+  ;; (define-key pdf-view-mode-map (kbd "t") 'pdf-annot-add-text-annotation)
+  ;; (define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete)
+  :hook   (
+	   (pdf-view-mode . pdf-view-themed-minor-mode)
+	   (pdf-view-mode-hook . pdf-tools-enabled-minor-modes)
+	   )
+  )
+#+end_src
+
+** org-pdftools
+
+#+begin_src emacs-lisp :tangle yes
+(use-package org-pdftools
+  :ensure t
+  :defer t
+  :hook (org-mode . org-pdftools-setup-link))
+#+end_src
+
+* citar
+#+begin_src emacs-lisp :tangle yes
+(use-package citar
+  :no-require
+  :custom
+  (org-cite-global-bibliography '("~/Zotero/MyLibrary.bib"))
+  (citar-bibliography '("~/Zotero/MyLibrary.bib"))
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
+  (citar-bibliography org-cite-global-bibliography)
+  (citar-library-paths (list denote-directory))
+  :config
+  (use-package citar-embark
+    :ensure t
+    :after citar embark
+    :no-require
+    :config
+    (setq citar-at-point-function 'embark-act)
+    (citar-embark-mode)
+    )
+  
+  ;; optional: org-cite-insert is also bound to C-c C-x C-@
+  :bind
+  (("C-c d o" . citar-open)
+   :map org-mode-map :package org
+   ("C-c b" . #'org-cite-insert)))
+#+end_src
+
+
+
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("b216e9b72dc8c2b702e4fcfd3c0af2d73c87eba46fd4db824ddb50863447d6a9" default))
+ '(package-selected-packages
+   '(djvu nov org-mpv-notes denote doom-modeline olivetti rainbow-delimiters ef-themes flyspell-correct consult-flyspell flyspell citar-embark citar org-noter-pdftools embark-consult embark org-pdftools pdf-tools org-modern yasnippet-snippets which-key vterm-toggle vertico use-package undo-tree restclient qml-mode org-bullets orderless marginalia magit flycheck expand-region eldoc-box eglot doom-themes diff-hl corfu consult cmake-mode)))
+
