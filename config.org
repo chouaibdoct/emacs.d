@@ -14,6 +14,7 @@
                  ;;		 '("org" . "https://orgmode.org/elpa/")
                  )
     (setq package-enable-at-startup nil)
+    (add-to-list 'load-path "~/.emacs.d/lisp")
    ;; (package-initialize)
     )
 
@@ -252,14 +253,15 @@
     (vundo-compact-display t)
     (vundo-glyph-alist vundo-unicode-symbols)
     :config
-    :bind (("C-_" . (lambda()(interactive) (undo) (vundo)))
-           ("M-_" . (lambda()(interactive) (undo-redo) (vundo)))
+    :bind (("C--" . (lambda()(interactive) (undo) (vundo)))
+           ("M--" . (lambda()(interactive) (undo-redo) (vundo)))
            :map vundo-mode-map
-           ("C-_" . vundo-backward)
-           ("M-_" . vundo-forward)
+           ("C--" . vundo-backward)
+           ("M--" . vundo-forward)
            )
     )
 
+  ;;(global-unset-key (kbd "C--"))
 #+end_src
 ** expand-region
 #+begin_src emacs-lisp :tangle yes
@@ -269,7 +271,6 @@
 	 ("M--" . er/contract-region))
   )
 #+end_src
-
 * org-mode
 #+begin_src emacs-lisp :tangle yes
   (use-package org
@@ -309,22 +310,24 @@
            )
     )
 
+#+end_src
+** org-modern / olivetti
+#+begin_src emacs-lisp :tangle yes
   (use-package org-modern
     :ensure t
     :after org
     :hook (org-mode . org-modern-mode)
     )
-#+end_src
-** olivetti
-#+begin_src emacs-lisp :tangle yes
-(use-package olivetti
-  :ensure t
-  :defer t
-  :init
-;  (setq olivetti-body-width .67)
-  :config
-;  :hook (org-mode . olivetti-mode)
-  )
+  (use-package olivetti
+    :ensure t
+    :defer t
+    :init
+    (setq olivetti-body-width .67)
+    :config
+    (olivetti-set-width 130)
+
+    :hook (org-mode . olivetti-mode)
+    )
 #+end_src
 ** org-noter
 #+begin_src emacs-lisp :tangle no
@@ -372,6 +375,38 @@
   ("C-c n b" . denote-link-find-file)
   ("C-c n B" . denote-link-backlinks))
 #+end_src
+
+#+begin_src json :tangle no
+for zotero
+  {
+  "4": {
+    "field": "dateAdded",
+    "operations": [
+      {
+        "function": "replace",
+        "regex": "(\\d{4})-(\\d{2})-(\\d{2}) (.*)",
+        "replacement": "$1$2$3T$4",
+        "flags": "g"
+      }
+    ]
+  },
+  "5": {
+    "field": "title",
+    "operations": [
+      {
+        "function": "replace",
+        "regex": "\\s",
+        "replacement": "-",
+        "flags": "g"
+      }
+    ]
+  }
+}
+
+{%4}{==%a}{=%y}{--%5}
+
+#+end_src
+
 * citar-denote
 #+begin_src emacs-lisp :tangle yes
 (use-package citar-denote
@@ -408,7 +443,7 @@
       (load-theme 'ef-day)
       )
 #+end_src
-* vertico / margilinea consult embark
+* vertico / margilinea /savehist
 #+begin_src emacs-lisp :tangle yes
   (use-package vertico
     :ensure t
@@ -427,71 +462,92 @@
     (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nill))
     :init (marginalia-mode)
     )
-  (use-package consult 
-    :ensure t
-    :demand t
-    :bind (
-           ("C-s" . consult-line)
-  ;;	 ("C-s" . consult-line)
 
-           ("C-x b" . consult-buffer)
-           ("C-c i" . consult-imenu)
-           ("C-c C-i" . consult-imenu-multi)
-           ("C-x C-b" . consult-buffer-other-window)
-           ("C-x j" . cousult-bookmark)
-           ("C-c b" . consult-project-buffer)
-  ;;	 ("C-y" . consult-yank-from-kill-ring)
-           ("M-y" . consult-yank-pop)
-           ("M-g M-g" . consult-goto-line-numbers)
-           ("C-x m" . consult-global-mark)
-
-           :map minibuffer-local-map
-           ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-           ("M-r" . consult-history)
-
-           )
-    :custom
-    (completion-in-region-function #'consult-completion-in-region)
-
-    ;; (consult-buffer-filter '("\\` " "\\`\\*.*\\*\\'"))
-    (consult-buffer-filter
-     '("\\` " "\\`\\*Completions\\*\\'" "\\`\\*Flymake log\\*\\'" "\\`\\*Semantic SymRef\\*\\'" "\\`\\*tramp/.*\\*\\'" "\\`\\*EGLOT.*\\*\\'" "\\`\\*Async-native-compile-log*\\*\\'" "\\`\\*Messages*\\*\\'" "\\`\\*scratch*\\*\\'") )
-
-    :hook (completion-list-mode . consult-preview-at-point-mode)
-
-    :init
-    (setq xref-show-xrefs-function #'consult-xref
-          xref-show-definitions-function #'consult-xref)
-
-    :config
-    ;; (consult-customize
-    ;;  consult-theme :preview-key '(:debounce 0.2 any)
-    ;;  consult-ripgrep consult-git-grep consult-grep
-    ;;  consult-bookmark consult-recent-file consult-xref
-    ;;  consult--source-bookmark consult--source-file-register
-    ;;  consult--source-recent-file consult--source-project-recent-file
-    ;;  ;; :preview-key (kbd "M-.")
-    ;;  :preview-key '(:debounce 0.4 any))
-
-    ;; Optionally configure the narrowing key.
-    ;; Both < and C-+ work reasonably well.
-
-
-    ;; By default `consult-project-function' uses `project-root' from project.el.
-    ;; Optionally configure a different project root function.
-    ;; There are multiple reasonable alternatives to chose from.
-    ;;;; 1. project.el (the default)
-    ;; (setq consult-project-function #'consult--default-project--function)
-    ;;;; 2. projectile.el (projectile-project-root)
-    ;; (autoload 'projectile-project-root "projectile")
-    ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
-    ;;;; 3. vc.el (vc-root-dir)
-    ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
-    ;;;; 4. locate-dominating-file
-    ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
-    )
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+#+end_src
+* consult
+#+begin_src emacs-lisp :tangle yes
+(use-package consult 
+  :ensure t
+  :demand t
+  :bind (
+         ("C-s" . consult-line)
+;;	 ("C-s" . consult-line)
+
+         ("C-x b" . consult-buffer)
+         ("C-c i" . consult-imenu)
+         ("C-c C-i" . consult-imenu-multi)
+         ("C-x C-b" . consult-buffer-other-window)
+         ("C-x j" . cousult-bookmark)
+         ("C-c b" . consult-project-buffer)
+;;	 ("C-y" . consult-yank-from-kill-ring)
+         ("M-y" . consult-yank-pop)
+         ("M-g M-g" . consult-goto-line-numbers)
+         ("C-x m" . consult-global-mark)
+
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history)
+
+         )
+  :custom
+  (completion-in-region-function #'consult-completion-in-region)
+
+  ;; (consult-buffer-filter '("\\` " "\\`\\*.*\\*\\'"))
+  (consult-buffer-filter
+   '("\\` " "\\`\\*Completions\\*\\'" "\\`\\*Flymake log\\*\\'" "\\`\\*Semantic SymRef\\*\\'" "\\`\\*tramp/.*\\*\\'" "\\`\\*EGLOT.*\\*\\'" "\\`\\*Async-native-compile-log*\\*\\'" "\\`\\*Messages*\\*\\'" "\\`\\*scratch*\\*\\'") )
+
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+
+  :init
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  :config
+  ;; (consult-customize
+  ;;  consult-theme :preview-key '(:debounce 0.2 any)
+  ;;  consult-ripgrep consult-git-grep consult-grep
+  ;;  consult-bookmark consult-recent-file consult-xref
+  ;;  consult--source-bookmark consult--source-file-register
+  ;;  consult--source-recent-file consult--source-project-recent-file
+  ;;  ;; :preview-key (kbd "M-.")
+  ;;  :preview-key '(:debounce 0.4 any))
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+
+
+  ;; By default `consult-project-function' uses `project-root' from project.el.
+  ;; Optionally configure a different project root function.
+  ;; There are multiple reasonable alternatives to chose from.
+  ;;;; 1. project.el (the default)
+  ;; (setq consult-project-function #'consult--default-project--function)
+  ;;;; 2. projectile.el (projectile-project-root)
+  ;; (autoload 'projectile-project-root "projectile")
+  ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
+  ;;;; 3. vc.el (vc-root-dir)
+  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
+  ;;;; 4. locate-dominating-file
+  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
+  )
+#+end_src
+* orderless
+#+begin_src emacs-lisp :tangle yes
+  (use-package orderless
+    :ensure t
+    :custom
+    ;; (completion-styles '(orderless basic))
+    ;; (completion-category-overrides '((file (styles basic partial-completion)))))
+    (completion-styles '(partial-completion orderless )) ;;flex flex initials partial-completion
+    (completion-category-defaults nil )  ;;'((eglot (styles orderless)))
+    ;; (completion-category-overrides '((eglot (styles orderless))))
+      (completion-category-overrides     '((file (styles partial-completion))))
+    )
+#+end_src
+
+* embark
+#+begin_src emacs-lisp :tangle yes
   (use-package embark
     :ensure t
     :bind(("C-h B " . embark-bindings)
@@ -511,23 +567,10 @@
     :hook
     (embark-collect-mode . consult-preview-at-point-mode))
 
+
 #+end_src
 
-** orderless
-#+begin_src emacs-lisp :tangle yes
-  (use-package orderless
-    :ensure t
-    :custom
-    ;; (completion-styles '(orderless basic))
-    ;; (completion-category-overrides '((file (styles basic partial-completion)))))
-    (completion-styles '(partial-completion orderless )) ;;flex flex initials partial-completion
-    (completion-category-defaults nil )  ;;'((eglot (styles orderless)))
-    ;; (completion-category-overrides '((eglot (styles orderless))))
-      (completion-category-overrides     '((file (styles partial-completion))))
-    )
-#+end_src
-
-** corefu
+* corefu
 #+begin_src emacs-lisp :tangle yes
   (use-package corfu
     :ensure t
@@ -573,40 +616,17 @@
       :ensure t
       :defer t
       :config
-      (use-package yasnippet-snippets
-        :ensure t
-        :defer t
-        )
+
   ;;    (yas-reload-all)
       ;; (add-hook 'c++-mode-hook 'yas-minor-mode)
       ;; (add-hook 'c++-mode 'yas-reload-all)
       ;;(add-hook 'yas-global-mode-hook 'yas-reload-all)
       )
+  (use-package yasnippet-snippets
+        :ensure t
+        :defer t
+        )
 #+end_src
-
-* flymake / flycheck
-#+begin_src emacs-lisp :tangle yes
-  (use-package flymake
-    :defer t
-    :bind ( :map flymake-mode-map
-            ("M-n" . flymake-goto-next-error)
-            ("M-p" . flymake-goto-prev-error)
-
-            )
-    )
-#+end_src
-#+begin_src emacs-lisp :tangle no
-(use-package flycheck
-  :ensure t
-  :defer t
-  :bind (:map flycheck-mode-map
-	     ("M-n" . flycheck-next-error)
-	     ("M-p" . flycheck-previous-error)
-	     )
-    )
-#+end_src
-
-
 
 * flyspell/jinx
 #+begin_src emacs-lisp :tangle no
@@ -635,22 +655,32 @@
   (use-package jinx
     :hook (org-mode . global-jinx-mode)
     :config
-    (add-to-list 'vertico-multiform-categories
-                 '(jinx grid (vertico-grid-annotate . 20)))
+     ;; (add-to-list 'vertico-multiform-categories
+     ;;              '(jinx grid (vertico-grid-annotate . 20)))
     (vertico-multiform-mode 1)
     :bind (("M-$" . jinx-correct)
            ("C-M-$" . jinx-languages)))
 
 #+end_src
 
-* eglot
+
+* programming
+
+** build / project 
+#+begin_src emacs-lisp :tangle yes
+(use-package ansi-color
+  :hook (compilation-filter . ansi-color-compilation-filter))
+
+(setq compile-command "cmake --build ./build")
+#+end_src
+** eglot
 #+begin_src emacs-lisp :tangle yes
 (use-package eglot
   :ensure t
   :defer t
-;;  :after (yasnippet) ;; flycheck  flymake
+  :after (yasnippet) ;; flycheck  flymake
   :init
-  (yas-global-mode 1)
+;;  (yas-global-mode 1)
   :config
   (with-eval-after-load 'eglot
         (add-to-list 'eglot-server-programs
@@ -683,7 +713,7 @@
   )
 #+end_src
 
-* eldoc-box
+** eldoc-box
 #+begin_src emacs-lisp :tangle yes
 (use-package eldoc-box
   :ensure t
@@ -694,7 +724,35 @@
   )
 #+end_src
 
+** flymake / flycheck
+#+begin_src emacs-lisp :tangle yes
+  (use-package flymake
+    :defer t
+    :bind ( :map flymake-mode-map
+            ("M-n" . flymake-goto-next-error)
+            ("M-p" . flymake-goto-prev-error)
 
+            )
+    )
+#+end_src
+#+begin_src emacs-lisp :tangle no
+(use-package flycheck
+  :ensure t
+  :defer t
+  :bind (:map flycheck-mode-map
+	     ("M-n" . flycheck-next-error)
+	     ("M-p" . flycheck-previous-error)
+	     )
+    )
+#+end_src
+
+
+** cmake
+#+begin_src emacs-lisp :tangle yes
+(use-package cmake-mode
+  :ensure t
+  )
+#+end_src
 * magit / diff-h
 
 #+begin_src emacs-lisp :tangle yes
@@ -831,3 +889,25 @@
  '(package-selected-packages
    '(djvu nov org-mpv-notes denote doom-modeline olivetti rainbow-delimiters ef-themes flyspell-correct consult-flyspell flyspell citar-embark citar org-noter-pdftools embark-consult embark org-pdftools pdf-tools org-modern yasnippet-snippets which-key vterm-toggle vertico use-package undo-tree restclient qml-mode org-bullets orderless marginalia magit flycheck expand-region eldoc-box eglot doom-themes diff-hl corfu consult cmake-mode)))
 
+* mac keys /specific
+#+begin_src emacs-lisp :tangle yes
+  (add-to-list 'default-frame-alist '(undecorated . t)) 
+  (menu-bar-mode 1)
+  (setq mac-option-modifier 'super)
+  (setq mac-command-modifier 'meta)
+  (setq mac-function-modifier 'control)
+  (setq mac-right-command-modifier 'none)
+  (setq mac-right-option-modifier 'none)
+
+  (global-set-key (kbd "C-q") 'move-beginning-of-line)
+
+  (global-set-key (kbd "C-x à") 'delete-window)
+  (global-set-key (kbd "C-x &") 'delete-other-windows)
+  (global-set-key (kbd "C-x à") 'delete-window)
+  (global-set-key (kbd "C-x \" ") 'split-and-follow-vertically)
+  (global-set-key (kbd "C-x é") 'split-and-follow-horizontally)
+
+  ;;(set-face-attribute 'default nil :family "Inconsolata" :height 140)
+  ;;(set-face-attribute 'default nil :height 140)
+
+#+end_src
