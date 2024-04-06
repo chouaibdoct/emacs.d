@@ -273,42 +273,42 @@
 #+end_src
 * org-mode
 #+begin_src emacs-lisp :tangle yes
-  (use-package org
-    :defer t
-    :config
-    (setq org-hide-emphasis-markers t ;; for *bold* to look bold wothout stars 
-          org-ellipsis " ▾"
-          ;;	org-deadline-warning-days 14 ;;to warn n days before deadline date
-          org-pretty-entities t
-          org-startup-with-inline-images t
-          org-startup-indented t
-          org-agenda-start-with-log-mode t
-          org-log-done t
-          org-log-into-drawer t
-          org-directory "~/org"
-          )
+    (use-package org
+      :defer t
+      :config
+      (setq org-hide-emphasis-markers t ;; for *bold* to look bold wothout stars 
+            org-ellipsis " ▾"
+            ;;	org-deadline-warning-days 14 ;;to warn n days before deadline date
+            org-pretty-entities t
+            org-startup-with-inline-images t
+            org-startup-indented t
+            org-agenda-start-with-log-mode t
+            org-log-done t
+            org-log-into-drawer t
+            org-directory "~/org"
+            )
 
-    (dolist (face '((org-level-1 . 1.2)
-                    (org-level-2 . 1.15)
-                    ))
-      (set-face-attribute (car face) nil :weight 'medium  :height (cdr face))) ;; :weight 'medium  :height (cdr face)
+      (dolist (face '((org-level-1 . 1.2)
+                      (org-level-2 . 1.15)
+                      ))
+        (set-face-attribute (car face) nil :weight 'medium  :height (cdr face))) ;; :weight 'medium  :height (cdr face)
 
-    ;; (use-package org-bullets
-    ;;   :hook (org-mode . org-bullets-mode)
-    ;;   :defer t
-    ;;   :config
-    ;;   (setq org-bullets-bullet-list '(  "❖" "✸" "✮" "◉" "⁑" "⁂" )) ;;"✱" "◉" "○" "●" "○" "●" "○" "●"
-    ;;   )
+      ;; (use-package org-bullets
+      ;;   :hook (org-mode . org-bullets-mode)
+      ;;   :defer t
+      ;;   :config
+      ;;   (setq org-bullets-bullet-list '(  "❖" "✸" "✮" "◉" "⁑" "⁂" )) ;;"✱" "◉" "○" "●" "○" "●" "○" "●"
+      ;;   )
 
-    :hook (;;(org-mode . org-indent-mode )
-           (org-mode . visual-line-mode )
-           )
-    :bind  ( ("C-c a" . org-agenda)
-             ("C-c c" . org-capture)
-            :map org-mode-map
-           ("C-c l" . org-store-link)
-           )
-    )
+      :hook (;;(org-mode . org-indent-mode )
+             (org-mode . visual-line-mode )
+             )
+      :bind  ( ("C-c a" . org-agenda)
+               ("C-c c" . org-capture)
+  ;;            :map org-mode-map
+               ("C-c l" . org-store-link)
+             )
+      )
 
 #+end_src
 ** org-modern / olivetti
@@ -360,7 +360,7 @@
   :config
   ;;
   ;; General key bindings
-  (setq denote-directory (expand-file-name "~/orgfiles/denote"))
+  (setq denote-directory (expand-file-name "~/Documents/Zotero"))
 ;;  (setq denote-known-keywords '("GC" "doct"))
   (setq denote-infer-keywords t)
   (setq denote-sort-keywords t)
@@ -607,7 +607,7 @@ for zotero
 
 (use-package vterm-toggle
   :ensure t
- ; :bind ("<C-return>" . vterm-toggle)
+  :bind ("<C-return>" . vterm-toggle)
   )
 #+end_src
 * yasnippet
@@ -662,7 +662,6 @@ for zotero
            ("C-M-$" . jinx-languages)))
 
 #+end_src
-
 
 * programming
 
@@ -804,6 +803,20 @@ for zotero
 #+end_src
 
 
+* xref
+#+begin_src emacs-lisp :tangle yes
+  (use-package xref
+    :config
+    (setq xref-search-program
+          (cond
+           ((or (executable-find "ripgrep")
+                (executable-find "rg"))
+            'ripgrep)
+           ((executable-find "ugrep")
+            'ugrep)
+           (t
+            'grep))))
+#+end_src
 * restclient
 #+begin_src emacs-lisp :tangle yes
 (use-package restclient
@@ -908,6 +921,17 @@ for zotero
   (global-set-key (kbd "C-x é") 'split-and-follow-horizontally)
 
   ;;(set-face-attribute 'default nil :family "Inconsolata" :height 140)
-  ;;(set-face-attribute 'default nil :height 140)
+  (set-face-attribute 'default nil :height 140)
+  (defun frame-font-height (value)
+       "Sets the frame font height default=12"
+       (interactive "nFrame font height default =12:")
+       (set-face-attribute 'default nil :height (* 10 value)))
 
+  ;; (add-hook 'minibuffer-setup-hook 'my-minibuffer-setup)
+  ;; (defun my-minibuffer-setup ()
+  ;;        (set (make-local-variable 'face-remapping-alist)
+  ;;           '((default :height 1.1))))
+
+
+  
 #+end_src
