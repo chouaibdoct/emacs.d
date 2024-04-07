@@ -249,18 +249,37 @@
 
   (use-package vundo
     :ensure t
+    :init
+    (setq vun-key (if (eq system-type 'darwin) "C--" "C-_"))
     :custom
     (vundo-compact-display t)
     (vundo-glyph-alist vundo-unicode-symbols)
     :config
-    :bind (("C--" . (lambda()(interactive) (undo) (vundo)))
-           ("M--" . (lambda()(interactive) (undo-redo) (vundo)))
-           :map vundo-mode-map
-           ("C--" . vundo-backward)
-           ("M--" . vundo-forward)
-           )
-    )
+    ;; :bind (("C--" . (lambda()(interactive) (undo) (vundo)))
+    ;;        ("M--" . (lambda()(interactive) (undo-redo) (vundo)))
+    ;;        :map vundo-mode-map
+    ;;        ("C--" . vundo-backward)
+    ;;        ("M--" . vundo-forward)
+    ;;        )
+    (if (eq system-type 'darwin)
+        (global-set-key (kbd "C--" ) (lambda()(interactive) (undo) (vundo)))
+      ((global-set-key (kbd "C-_" ) (lambda()(interactive) (undo) (vundo))))
+      )
+    (if (eq system-type 'darwin)
+        (global-set-key (kbd "M--" ) (lambda()(interactive) (undo) (vundo)))
+      ((global-set-key (kbd "M-_" ) (lambda()(interactive) (undo-redo) (vundo))))
+      )
+  
+    (if (eq system-type 'darwin)
+        (keymap-set vundo-mode-map  "C--" 'vundo-backward)
+      (keymap-set vundo-mode-map  "C-_" 'vundo-backward)
+      )
 
+    (if (eq system-type 'darwin)
+        (keymap-set vundo-mode-map  "M--" 'vundo-forward)
+      (keymap-set vundo-mode-map  "M-_" 'vundo-forward)
+      )
+    )
   ;;(global-unset-key (kbd "C--"))
 #+end_src
 ** expand-region
@@ -890,17 +909,6 @@ for zotero
 
 
 
-
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("b216e9b72dc8c2b702e4fcfd3c0af2d73c87eba46fd4db824ddb50863447d6a9" default))
- '(package-selected-packages
-   '(djvu nov org-mpv-notes denote doom-modeline olivetti rainbow-delimiters ef-themes flyspell-correct consult-flyspell flyspell citar-embark citar org-noter-pdftools embark-consult embark org-pdftools pdf-tools org-modern yasnippet-snippets which-key vterm-toggle vertico use-package undo-tree restclient qml-mode org-bullets orderless marginalia magit flycheck expand-region eldoc-box eglot doom-themes diff-hl corfu consult cmake-mode)))
 
 * mac keys /specific
 #+begin_src emacs-lisp :tangle yes
