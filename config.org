@@ -1,4 +1,5 @@
 
+
 * Emacs General
 #+begin_src emacs-lisp :tangle yes
 (setq gc-cons-threshold 100000000)
@@ -198,25 +199,34 @@
 #+end_src
 ** hideshow
 #+begin_src emacs-lisp :tangle yes
-(use-package hideshow
-    :init (add-hook #'prog-mode-hook #'hs-minor-mode)
-    :diminish hs-minor-mode
+  (use-package hideshow
+      :init (add-hook #'prog-mode-hook #'hs-minor-mode)
+      :diminish hs-minor-mode
 
-    :config
-    (defun ll ()
-    (interactive)
-    (hs-hide-level 2))
-    (define-key hs-minor-mode-map (kbd "C-*") 'hs-hide-level)
-    (define-key hs-minor-mode-map (kbd "<C-kp-add>") 'hs-show-block)
-    (define-key hs-minor-mode-map (kbd "<C-kp-subtract>") 'hs-hide-block)
-    (add-hook 'c++-mode-hook 'll)
-   ;;; Add `json-mode' and `javascript-mode' to the list
-   ;;; (setq hs-special-modes-alist
-   ;;; 	(mapcar 'purecopy
-   ;;; 		'((js-mode "{" "}" "/[*/]" nil)
-   ;;; 		  (json-mode "{" "}" "/[*/]" nil)
-   ;;; 		  (javascript-mode  "{" "}" "/[*/]" nil))))
-    )
+      :config
+      (defun ll ()
+      (interactive)
+      (hs-hide-level 2))
+      (define-key hs-minor-mode-map (kbd "C-*") 'hs-hide-level)
+
+      (if (eq system-type 'darwin)
+          (progn (define-key hs-minor-mode-map (kbd "C-+") 'hs-show-block)
+                 (global-unset-key (kbd "C-_"))
+                 (define-key hs-minor-mode-map (kbd "C-_") 'hs-hide-block)
+                 )
+        (progn (define-key hs-minor-mode-map (kbd "<C-kp-add>") 'hs-show-block)
+               (define-key hs-minor-mode-map (kbd "<C-kp-subtract>") 'hs-hide-block)
+               )
+        )
+
+      (add-hook 'c++-mode-hook 'll)
+     ;;; Add `json-mode' and `javascript-mode' to the list
+     ;;; (setq hs-special-modes-alist
+     ;;; 	(mapcar 'purecopy
+     ;;; 		'((js-mode "{" "}" "/[*/]" nil)
+     ;;; 		  (json-mode "{" "}" "/[*/]" nil)
+     ;;; 		  (javascript-mode  "{" "}" "/[*/]" nil))))
+      )
 #+end_src
 ** which-key/rainbow/vundo
 #+begin_src emacs-lisp :tangle yes
@@ -262,23 +272,20 @@
     ;;        ("M--" . vundo-forward)
     ;;        )
     (if (eq system-type 'darwin)
-        (global-set-key (kbd "C--" ) (lambda()(interactive) (undo) (vundo)))
-      ((global-set-key (kbd "C-_" ) (lambda()(interactive) (undo) (vundo))))
-      )
-    (if (eq system-type 'darwin)
-        (global-set-key (kbd "M--" ) (lambda()(interactive) (undo) (vundo)))
-      ((global-set-key (kbd "M-_" ) (lambda()(interactive) (undo-redo) (vundo))))
-      )
-  
-    (if (eq system-type 'darwin)
-        (keymap-set vundo-mode-map  "C--" 'vundo-backward)
-      (keymap-set vundo-mode-map  "C-_" 'vundo-backward)
+        (progn
+          (global-set-key (kbd "C--" ) (lambda()(interactive) (undo) (vundo)))
+          (global-set-key (kbd "M--" ) (lambda()(interactive) (undo) (vundo)))
+          (keymap-set vundo-mode-map  "C--" 'vundo-backward)
+          (keymap-set vundo-mode-map  "M--" 'vundo-forward)
+          )
+      (progn
+        ((global-set-key (kbd "C-_" ) (lambda()(interactive) (undo) (vundo))))
+        ((global-set-key (kbd "M-_" ) (lambda()(interactive) (undo-redo) (vundo))))
+        (keymap-set vundo-mode-map  "C-_" 'vundo-backward)
+        (keymap-set vundo-mode-map  "M-_" 'vundo-forward)
+        )
       )
 
-    (if (eq system-type 'darwin)
-        (keymap-set vundo-mode-map  "M--" 'vundo-forward)
-      (keymap-set vundo-mode-map  "M-_" 'vundo-forward)
-      )
     )
   ;;(global-unset-key (kbd "C--"))
 #+end_src
@@ -372,95 +379,28 @@
   ;; (org-noter-hide-other t)
   )
 #+end_src
-* denote
-#+begin_src emacs-lisp :tangle yes
-(use-package denote
-  :ensure t
-  :config
-  ;;
-  ;; General key bindings
-  (setq denote-directory (expand-file-name "~/Documents/Zotero"))
-;;  (setq denote-known-keywords '("GC" "doct"))
-  (setq denote-infer-keywords t)
-  (setq denote-sort-keywords t)
-  (setq denote-file-type 'org)
-  ;;
-  ;; Tweaking the frontmatter
-  (setq denote-org-front-matter
-        "#+title: %s\n#+date: %s\n#+filetags: %s\n#+identifier: %s\n#+author:\n#+startup: content\n")
-  :bind
-  ("C-c n n" . denote-open-or-create)
-  ("C-c n l" . denote-link-or-create)
-  ("C-c n b" . denote-link-find-file)
-  ("C-c n B" . denote-link-backlinks))
-#+end_src
-
-#+begin_src json :tangle no
-for zotero
-  {
-  "4": {
-    "field": "dateAdded",
-    "operations": [
-      {
-        "function": "replace",
-        "regex": "(\\d{4})-(\\d{2})-(\\d{2}) (.*)",
-        "replacement": "$1$2$3T$4",
-        "flags": "g"
-      }
-    ]
-  },
-  "5": {
-    "field": "title",
-    "operations": [
-      {
-        "function": "replace",
-        "regex": "\\s",
-        "replacement": "-",
-        "flags": "g"
-      }
-    ]
-  }
-}
-
-{%4}{==%a}{=%y}{--%5}
-
-#+end_src
-
-* citar-denote
-#+begin_src emacs-lisp :tangle yes
-(use-package citar-denote
-  :config
-  (citar-denote-mode)
-  (setq citar-open-always-create-notes t)
-  :bind (("C-c n c c" . citar-create-note)
-         ("C-c n c a" . citar-denote-add-citekey)
-         ("C-c n c x" . citar-denote-remove-citekey)
-         ("C-c d c o" . citar-denote-open-note)
-         ("C-c n c d" . citar-denote-dwim)
-         ("C-c n c r" . citar-denote-find-reference)
-         ("C-c n c f" . citar-denote-find-citation)
-         ("C-c n c n" . citar-denote-find-nocite)))
-#+end_src
 * themes
 #+begin_src emacs-lisp :tangle yes
-  (use-package doom-themes
-    :ensure t
-    :defer t
-    :config
-    (doom-themes-visual-bell-config)
-    )
-  (use-package doom-modeline
+    (use-package doom-themes
       :ensure t
       :defer t
-      )
-
-  (use-package ef-themes
-      :ensure t
       :config
-      ;; (setq ef-themes-mixed-fonts t
-      ;; 	  ef-themes-variable-pitch-ui t)
-      (load-theme 'ef-day)
+      (doom-themes-visual-bell-config)
       )
+    (use-package doom-modeline
+        :ensure t
+  ;;      :defer t
+        :config
+        (doom-modeline-mode)
+        )
+
+    (use-package ef-themes
+        :ensure t
+        :config
+        ;; (setq ef-themes-mixed-fonts t
+        ;; 	  ef-themes-variable-pitch-ui t)
+        (load-theme 'ef-day)
+        )
 #+end_src
 * vertico / margilinea /savehist
 #+begin_src emacs-lisp :tangle yes
@@ -846,36 +786,149 @@ for zotero
 
 * pdf-tools
 #+begin_src emacs-lisp :tangle yes
-(use-package pdf-tools
-  :ensure t
-  :defer t
-  :commands (pdf-view-mode pdf-tools-install)
-  :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
-  :magic ("%PDF" . pdf-view-mode)
-  :config
-  (pdf-tools-install)
-  (setq pdf-view-resize-factor 1.1)
-  (setq-default pdf-view-display-size 'fit-width)
-  (define-pdf-cache-function pagelabels)
+  (use-package pdf-tools
+    :ensure t
+    :defer t
+    :commands (pdf-view-mode pdf-tools-install)
+    :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
+    :magic ("%PDF" . pdf-view-mode)
+    :hook   (
+             (pdf-view-mode . pdf-view-themed-minor-mode)
+             (pdf-view-mode . pdf-tools-enable-minor-modes)
+             )
+  
+    :config
+    (pdf-tools-install)
+    (setq pdf-view-resize-factor 1.1)
+    (setq-default pdf-view-display-size 'fit-width)
+    (define-pdf-cache-function pagelabels)
+    (setq pdf-view-continuous nil)
+    (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
 
-  (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
-  ;; (define-key pdf-view-mode-map (kbd "h") 'pdf-annot-add-highlight-markup-annotation)
-  ;; (define-key pdf-view-mode-map (kbd "t") 'pdf-annot-add-text-annotation)
-  ;; (define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete)
-  :hook   (
-	   (pdf-view-mode . pdf-view-themed-minor-mode)
-	   (pdf-view-mode-hook . pdf-tools-enabled-minor-modes)
-	   )
-  )
+    (use-package org-pdftools
+      :ensure t
+  ;;    :after pdf-tools
+      :config
+      (defun denote-link-generator (FILENAME)
+        (if (denote-file-has-identifier-p FILENAME)
+            (denote-retrieve-filename-identifier FILENAME)
+          (abbreviate-file-name FILENAME)
+          )
+        )
+
+      (defun denote-link-resolver (ID/FILENAME)
+        (if (denote--id-exists-p ID/FILENAME)
+            (denote-get-path-by-id ID/FILENAME)
+          (expand-file-name ID/FILENAME)
+          )
+        )
+
+      (setq org-pdftools-path-generator 'denote-link-generator
+            org-pdftools-path-resolver 'denote-link-resolver)
+
+      (org-pdftools-setup-link)
+      )
+    ;; (define-key pdf-view-mode-map (kbd "h") 'pdf-annot-add-highlight-markup-annotation)
+    ;; (define-key pdf-view-mode-map (kbd "t") 'pdf-annot-add-text-annotation)
+    ;; (define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete)
+    )
 #+end_src
 
+** saveplace-pdf-view
+#+begin_src emacs-lisp :tangle yes
+  (use-package pdf-view-restore
+  :after pdf-tools
+  :config
+  (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode)
+  (setq pdf-view-restore-filename "~/.emacs.d/.pdf-view-restore")
+  )
+#+end_src
 ** org-pdftools
 
+#+begin_src emacs-lisp :tangle no
+  (use-package org-pdftools
+    :ensure t
+    :config
+    (defun denote-link-generator (FILENAME)
+      (if (denote-file-has-identifier-p FILENAME)
+          (denote-retrieve-filename-identifier FILENAME)
+        (abbreviate-file-name FILENAME)
+        )
+      )
+
+    (defun denote-link-resolver (ID/FILENAME)
+      (if (denote--id-exists-p ID/FILENAME)
+          (denote-get-path-by-id ID/FILENAME)
+        (expand-file-name ID/FILENAME)
+        )
+      )
+
+    (setq org-pdftools-path-generator 'denote-link-generator
+          org-pdftools-path-resolver 'denote-link-resolver)
+  
+    (org-pdftools-setup-link)
+    )
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+  (use-package org-pdftools
+    :load-path  "~/.emacs.d/lisp/"
+    :config  (org-pdftools-setup-link))
+#+end_src
+
+* denote
 #+begin_src emacs-lisp :tangle yes
-(use-package org-pdftools
-  :ensure t
-  :defer t
-  :hook (org-mode . org-pdftools-setup-link))
+  (use-package denote
+    :ensure t
+    :config
+    ;;
+    ;; General key bindings
+    (setq denote-directory (expand-file-name "~/Documents/Zotero"))
+  ;;  (setq denote-known-keywords '("GC" "doct"))
+    (setq denote-infer-keywords t)
+    (setq denote-sort-keywords t)
+    (setq denote-file-type 'org)
+    (setq denote-rename-buffer-format "[D] %^s| %t")
+    ;;
+    ;; Tweaking the frontmatter
+    ;; (setq denote-org-front-matter
+    ;;       "#+title: %s\n#+date: %s\n#+filetags: %s\n#+identifier: %s\n#+author:\n#+startup: content\n")
+    :bind
+    ("C-c n n" . denote-open-or-create)
+    ("C-c n l" . denote-link-or-create)
+    ("C-c n b" . denote-link-find-file)
+    ("C-c n B" . denote-link-backlinks))
+#+end_src
+
+#+begin_src json :tangle no
+for zotero
+  {
+  "4": {
+    "field": "dateAdded",
+    "operations": [
+      {
+        "function": "replace",
+        "regex": "(\\d{4})-(\\d{2})-(\\d{2}) (.*)",
+        "replacement": "$1$2$3T$4",
+        "flags": "g"
+      }
+    ]
+  },
+  "5": {
+    "field": "title",
+    "operations": [
+      {
+        "function": "replace",
+        "regex": "\\s",
+        "replacement": "-",
+        "flags": "g"
+      }
+    ]
+  }
+}
+
+{%4}{==%a}{=%y}{--%5}
+
 #+end_src
 
 * citar
@@ -909,37 +962,54 @@ for zotero
 
 
 
+* citar-denote
+#+begin_src emacs-lisp :tangle yes
+(use-package citar-denote
+  :config
+  (citar-denote-mode)
+  (setq citar-open-always-create-notes t)
+  :bind (("C-c n c c" . citar-create-note)
+         ("C-c n c a" . citar-denote-add-citekey)
+         ("C-c n c x" . citar-denote-remove-citekey)
+         ("C-c d c o" . citar-denote-open-note)
+         ("C-c n c d" . citar-denote-dwim)
+         ("C-c n c r" . citar-denote-find-reference)
+         ("C-c n c f" . citar-denote-find-citation)
+         ("C-c n c n" . citar-denote-find-nocite)))
+#+end_src
 
 * mac keys /specific
 #+begin_src emacs-lisp :tangle yes
-  (add-to-list 'default-frame-alist '(undecorated . t)) 
-  (menu-bar-mode 1)
-  (setq mac-option-modifier 'super)
-  (setq mac-command-modifier 'meta)
-  (setq mac-function-modifier 'control)
-  (setq mac-right-command-modifier 'none)
-  (setq mac-right-option-modifier 'none)
+    (add-to-list 'default-frame-alist '(undecorated . t)) 
+    (menu-bar-mode 1)
+    (setq mac-option-modifier 'super)
+    (setq mac-command-modifier 'meta)
+    (setq mac-function-modifier 'control)
+    (setq mac-right-command-modifier 'none)
+    (setq mac-right-option-modifier 'none)
 
+
+  (global-set-key (kbd "s-<up>") 'toggle-frame-maximized)
   (global-set-key (kbd "C-q") 'move-beginning-of-line)
 
-  (global-set-key (kbd "C-x à") 'delete-window)
-  (global-set-key (kbd "C-x &") 'delete-other-windows)
-  (global-set-key (kbd "C-x à") 'delete-window)
-  (global-set-key (kbd "C-x \" ") 'split-and-follow-vertically)
-  (global-set-key (kbd "C-x é") 'split-and-follow-horizontally)
+    (global-set-key (kbd "C-x à") 'delete-window)
+    (global-set-key (kbd "C-x &") 'delete-other-windows)
+    (global-set-key (kbd "C-x à") 'delete-window)
+    (global-set-key (kbd "C-x \" ") 'split-and-follow-vertically)
+    (global-set-key (kbd "C-x é") 'split-and-follow-horizontally)
 
-  ;;(set-face-attribute 'default nil :family "Inconsolata" :height 140)
-  (set-face-attribute 'default nil :height 140)
-  (defun frame-font-height (value)
-       "Sets the frame font height default=12"
-       (interactive "nFrame font height default =12:")
-       (set-face-attribute 'default nil :height (* 10 value)))
+    ;;(set-face-attribute 'default nil :family "Inconsolata" :height 140)
+    (set-face-attribute 'default nil :height 140)
+    (defun frame-font-height (value)
+         "Sets the frame font height default=12"
+         (interactive "nFrame font height default =12:")
+         (set-face-attribute 'default nil :height (* 10 value)))
 
-  ;; (add-hook 'minibuffer-setup-hook 'my-minibuffer-setup)
-  ;; (defun my-minibuffer-setup ()
-  ;;        (set (make-local-variable 'face-remapping-alist)
-  ;;           '((default :height 1.1))))
+    ;; (add-hook 'minibuffer-setup-hook 'my-minibuffer-setup)
+    ;; (defun my-minibuffer-setup ()
+    ;;        (set (make-local-variable 'face-remapping-alist)
+    ;;           '((default :height 1.1))))
 
 
-  
+
 #+end_src
