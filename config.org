@@ -796,7 +796,7 @@
              (pdf-view-mode . pdf-view-themed-minor-mode)
              (pdf-view-mode . pdf-tools-enable-minor-modes)
              )
-  
+
     :config
     (pdf-tools-install)
     (setq pdf-view-resize-factor 1.1)
@@ -818,7 +818,7 @@
 
       (defun denote-link-resolver (ID/FILENAME)
         (if (denote--id-exists-p ID/FILENAME)
-            (denote-get-path-by-id ID/FILENAME)
+            (denote-get-relative-path-by-id ID/FILENAME)
           (expand-file-name ID/FILENAME)
           )
         )
@@ -826,6 +826,40 @@
       (setq org-pdftools-path-generator 'denote-link-generator
             org-pdftools-path-resolver 'denote-link-resolver)
 
+      (defun org-pdftools-export (link description format)
+        "Export the pdfview LINK with DESCRIPTION for FORMAT from Org files."
+        (let* (path loc page)
+          (if (string-match "\\(.+\\)::\\(.*\\)" link)
+              (progn
+                (setq path (match-string 1 link))
+                (setq loc (match-string 2 link))
+                (if (string-match "\\([0-9]+\\)++\\(.*\\)" loc)
+                    (setq page (match-string 1 loc))
+                  (setq page loc))
+                (setq path (funcall org-pdftools-path-resolver path))
+                )
+
+            (setq path link))
+
+          ;; `org-export-file-uri` expands the filename correctly
+          ;;    (setq path (org-export-file-uri (org-link-escape path)))
+
+          (cond ((eq format 'html)
+                 (format
+                  "<a href=\"%s#page=%s\">%s</a>"
+                  path
+                  page
+                  description))
+                ((eq format 'latex)
+                 (format
+                  "\\href[page=%s]{%s}{%s}"
+                  ;; "\\href{%s#page.%s}{%s}" 
+                  page
+                  path
+                  description))
+                ((eq format 'ascii)
+                 (format "%s (%s)" description path))
+                (t path))))
       (org-pdftools-setup-link)
       )
     ;; (define-key pdf-view-mode-map (kbd "h") 'pdf-annot-add-highlight-markup-annotation)
@@ -858,14 +892,14 @@
 
     (defun denote-link-resolver (ID/FILENAME)
       (if (denote--id-exists-p ID/FILENAME)
-          (denote-get-path-by-id ID/FILENAME)
+          (denote-get-relative-path-by-id ID/FILENAME)
         (expand-file-name ID/FILENAME)
         )
       )
 
     (setq org-pdftools-path-generator 'denote-link-generator
           org-pdftools-path-resolver 'denote-link-resolver)
-  
+
     (org-pdftools-setup-link)
     )
 #+end_src
