@@ -932,7 +932,9 @@
     ("C-c n n" . denote-open-or-create)
     ("C-c n l" . denote-link-or-create)
     ("C-c n b" . denote-link-find-file)
-    ("C-c n B" . denote-link-backlinks))
+    ("C-c n B" . denote-link-backlinks)
+    ("C-c n s" . denote-subdirectory)
+    )
 #+end_src
 
 #+begin_src json :tangle no
