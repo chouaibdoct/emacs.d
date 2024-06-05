@@ -379,6 +379,46 @@
   ;; (org-noter-hide-other t)
   )
 #+end_src
+** xenops
+#+begin_src emacs-lisp :tangle yes
+    (use-package xenops
+      :ensure t
+      :defer t
+      :config
+      (setq xenops-math-image-scale-factor 1.8)
+
+    ;  (setq xenops-reveal-on-entry nil)
+  ;    :hook(org-mode . xenops-mode)
+      )
+#+end_src
+** minted for better exporting source codes
+#+begin_src emacs-lisp :tangle yes :exports 
+  (defun wtd/org-toggle-minted ()
+    "Toggle whether or not Org should use minted for LaTeX."
+    (interactive)
+    (if (get 'wtd-org-minted-on-or-off 'state)
+        (progn
+          (setq org-latex-packages-alist (delete '("" "minted" nil) org-latex-packages-alist))
+          (setq org-latex-src-block-backend 'verbatim)
+          (setq org-latex-pdf-process '("latexmk -f -pdf -%latex -interaction=nonstopmode -output-directory=%o %f"))
+          (put 'wtd-org-minted-on-or-off 'state nil)
+          (message "Minted is off")
+          )
+      (progn
+        (add-to-list 'org-latex-packages-alist '("" "minted" nil))
+        (setq org-latex-src-block-backend 'minted)
+        (setq org-latex-pdf-process '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+        (setq org-latex-minted-options    '(("frame" "single")))
+        (put 'wtd-org-minted-on-or-off 'state t)
+        (message "Minted is on; use pdflatex -shell-escape -interaction=nonstopmode")
+        )
+      )
+    )
+
+  ;; look at this config https://github.com/wdenton/.emacs.d/blob/master/init.org
+  ;; and this blog https://www.miskatonic.org/2023/11/15/minted/
+  ;; this use python/brew package pygments
+#+end_src
 * themes
 #+begin_src emacs-lisp :tangle yes
     (use-package doom-themes
@@ -529,7 +569,7 @@
 
 #+end_src
 
-* corefu
+* corfu
 #+begin_src emacs-lisp :tangle yes
   (use-package corfu
     :ensure t
@@ -633,42 +673,48 @@
 #+end_src
 ** eglot
 #+begin_src emacs-lisp :tangle yes
-(use-package eglot
-  :ensure t
-  :defer t
-  :after (yasnippet) ;; flycheck  flymake
-  :init
-;;  (yas-global-mode 1)
-  :config
-  (with-eval-after-load 'eglot
-        (add-to-list 'eglot-server-programs
-            '((c-mode c++-mode)
-                 . ("~/qt/Tools/QtCreator/libexec/qtcreator/clang/bin/clangd"
-                       "-j=1"
-                       "--log=error"
-                       "--malloc-trim"
-                       "--background-index"
-		       "--background-index-priority=background" ;;; =background  ; low    ;normal 
-                       "--clang-tidy"
-                       "--cross-file-rename"
-                       "--completion-style=detailed"
-                       "--pch-storage=disk"
-                       "--header-insertion=never"
-                       "--header-insertion-decorators=0"))))
-  (with-eval-after-load 'eglot
-        (add-to-list 'eglot-server-programs
-            '(qml-mode
-                 . ("~/qt/6.4.2/gcc_64/bin/qmlls" "--build-dir=~/qttest/gallery/build/"))))
-  :hook
-  ((c-mode-common . eglot-ensure))
-  :bind (:map eglot-mode-map
-	  ("M-RET" . eglot-code-actions)
-	  ("C-c r" . eglot-rename)
-	  ("C-c f" . eglot-format-buffer)
-;;	  ("C-." . xref-find-definitions-other-window)
-	) 
-  
-  )
+  (use-package eglot
+    :ensure t
+    :defer t
+  ;;  :after (yasnippet) ;; flycheck  flymake
+    :init
+  ;;  (yas-global-mode 1)
+    :config
+    (with-eval-after-load 'eglot
+          (add-to-list 'eglot-server-programs
+              '((c++-mode c-mode c-ts-mode c++-ts-mode)
+                   . ("/usr/bin/clangd"
+                         "-j=4"
+                         "--log=error"
+                         ;; "--malloc-trim"
+                         "--background-index"
+                         ;; "--background-index-priority=background" ;;; =background  ; low    ;normal 
+                         "--clang-tidy"
+                         ;; ;; "--cross-file-rename"
+                         "--completion-style=detailed"
+                         "--pch-storage=disk"
+                         "--header-insertion=never"
+                         ;; ;; "--header-insertion-decorators=0"
+                         ))))
+    (with-eval-after-load 'eglot
+          (add-to-list 'eglot-server-programs
+              '(qml-mode
+                   . ("/usr/local/bin/qmlls" "--build-dir=~/qttest/gallery/build/"))))
+
+    (with-eval-after-load 'eglot
+            (add-to-list 'eglot-server-programs
+                '(f90-mode
+                     . ("fortls" "--notify_init" "--nthreads=4"))))
+    :hook
+    ((c-mode-common . eglot-ensure))
+    :bind (:map eglot-mode-map
+            ("M-RET" . eglot-code-actions)
+            ("C-c r" . eglot-rename)
+            ("C-c f" . eglot-format-buffer)
+  ;;	  ("C-." . xref-find-definitions-other-window)
+          ) 
+
+    )
 #+end_src
 
 ** eldoc-box
@@ -710,6 +756,21 @@
 (use-package cmake-mode
   :ensure t
   )
+#+end_src
+
+
+** Matlab
+#+begin_src emacs-lisp :tangle yes
+  (use-package matlab-mode
+    :ensure t
+    :defer t
+    :mode ("\\.m$" . matlab-mode)
+    :bind(:map matlab-mode-map
+               ("M-;" . matlab-shell-locate-fcn))
+    :init
+    (setq matlab-shell-command "/Applications/Matlab_R2020b.app/bin/matlab")
+    (setq matlab-shell-command-switches (list "-nodesktop"))
+    )
 #+end_src
 * magit / diff-h
 
@@ -924,6 +985,7 @@
     (setq denote-file-type 'org)
     (setq denote-rename-buffer-format "[D] %^s| %t")
     (denote-rename-buffer-mode)
+    
     ;;
     ;; Tweaking the frontmatter
     ;; (setq denote-org-front-matter
@@ -935,6 +997,7 @@
     ("C-c n B" . denote-link-backlinks)
     ("C-c n s" . denote-subdirectory)
     )
+   
 #+end_src
 
 #+begin_src json :tangle no
@@ -973,8 +1036,8 @@ for zotero
 (use-package citar
   :no-require
   :custom
-  (org-cite-global-bibliography '("~/Zotero/MyLibrary.bib"))
-  (citar-bibliography '("~/Zotero/MyLibrary.bib"))
+  (org-cite-global-bibliography '("~/Documents/Zotero/MyLib.bib"))
+  (citar-bibliography '("~/Documents/Zotero/MyLib.bib"))
   (org-cite-insert-processor 'citar)
   (org-cite-follow-processor 'citar)
   (org-cite-activate-processor 'citar)
@@ -1001,18 +1064,21 @@ for zotero
 
 * citar-denote
 #+begin_src emacs-lisp :tangle yes
-(use-package citar-denote
-  :config
-  (citar-denote-mode)
-  (setq citar-open-always-create-notes t)
-  :bind (("C-c n c c" . citar-create-note)
-         ("C-c n c a" . citar-denote-add-citekey)
-         ("C-c n c x" . citar-denote-remove-citekey)
-         ("C-c d c o" . citar-denote-open-note)
-         ("C-c n c d" . citar-denote-dwim)
-         ("C-c n c r" . citar-denote-find-reference)
-         ("C-c n c f" . citar-denote-find-citation)
-         ("C-c n c n" . citar-denote-find-nocite)))
+  (use-package citar-denote
+    :after citar denote 
+    :config
+    (citar-denote-mode)
+;;    (setq citar-open-always-create-notes t)
+    (setq citar-denote-subdir t)
+    (setq citar-denote-signature t)
+    :bind (("C-c n c c" . citar-create-note)
+           ("C-c n c a" . citar-denote-add-citekey)
+           ("C-c n c x" . citar-denote-remove-citekey)
+           ("C-c d c o" . citar-denote-open-note)
+           ("C-c n c d" . citar-denote-dwim)
+           ("C-c n c r" . citar-denote-find-reference)
+           ("C-c n c f" . citar-denote-find-citation)
+           ("C-c n c n" . citar-denote-find-nocite)))
 #+end_src
 
 * mac keys /specific
