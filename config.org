@@ -439,8 +439,17 @@
         :config
         ;; (setq ef-themes-mixed-fonts t
         ;; 	  ef-themes-variable-pitch-ui t)
-        (load-theme 'ef-light)
+  ;;      (load-theme 'ef-light)
         )
+
+  (defun my/apply-theme (appearance)
+    "Load theme, taking current system APPEARANCE into consideration."
+    (mapc #'disable-theme custom-enabled-themes)
+    (pcase appearance
+      ('light (load-theme 'ef-light t))
+      ('dark (load-theme 'ef-winter t))))
+
+  (add-hook 'ns-system-appearance-change-functions #'my/apply-theme)
 #+end_src
 * vertico / margilinea /savehist
 #+begin_src emacs-lisp :tangle yes
@@ -1116,3 +1125,43 @@ for zotero
 
 
 #+end_src
+
+* emacs-plus
+
+Emacs.app was installed to:
+  /usr/local/opt/emacs-plus@29
+
+To link the application to default Homebrew App location:
+  osascript -e 'tell application "Finder" to make alias file to posix file "/usr/local/opt/emacs-plus@29/Emacs.app" at POSIX file "/Applications" with properties {name:"Emacs.app"}'
+
+Your PATH value was injected into Emacs.app/Contents/Info.plist
+
+Report any issues to https://github.com/d12frosted/homebrew-emacs-plus
+
+To start d12frosted/emacs-plus/emacs-plus@29 now and restart at login:
+  brew services start d12frosted/emacs-plus/emacs-plus@29
+Or, if you don't want/need a background service you can just run:
+  /usr/local/opt/emacs-plus@29/bin/emacs --fg-daemon
+==> Summary
+🍺  /usr/local/Cellar/emacs-plus@29/29.4: 4,540 files, 249.6MB, built in 12 minutes 31 seconds
+==> Running `brew cleanup emacs-plus@29`...
+Disable this behaviour by setting HOMEBREW_NO_INSTALL_CLEANUP.
+Hide these hints with HOMEBREW_NO_ENV_HINTS (see `man brew`).
+==> Caveats
+==> emacs-plus@29
+Emacs.app was installed to:
+  /usr/local/opt/emacs-plus@29
+
+To link the application to default Homebrew App location:
+  osascript -e 'tell application "Finder" to make alias file to posix file "/usr/local/opt/emacs-plus@29/Emacs.app" at POSIX file "/Applications" with properties {name:"Emacs.app"}'
+
+Your PATH value was injected into Emacs.app/Contents/Info.plist
+
+Report any issues to https://github.com/d12frosted/homebrew-emacs-plus
+
+To start d12frosted/emacs-plus/emacs-plus@29 now and restart at login:
+  brew services start d12frosted/emacs-plus/emacs-plus@29
+Or, if you don't want/need a background service you can just run:
+  /usr/local/opt/emacs-plus@29/bin/emacs --fg-daemon
+➜  ~  osascript -e 'tell application "Finder" to make alias file to posix file "/usr/local/opt/emacs-plus@29/Emacs.app" at POSIX file "/Applications" with properties {name:"Emacs.app"}'
+alias file Emacs.app of folder Applications of startup disk
