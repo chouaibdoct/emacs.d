@@ -279,8 +279,8 @@
           (keymap-set vundo-mode-map  "M--" 'vundo-forward)
           )
       (progn
-        ((global-set-key (kbd "C-_" ) (lambda()(interactive) (undo) (vundo))))
-        ((global-set-key (kbd "M-_" ) (lambda()(interactive) (undo-redo) (vundo))))
+        (global-set-key (kbd "C-_" ) (lambda()(interactive) (undo) (vundo)))
+        (global-set-key (kbd "M-_" ) (lambda()(interactive) (undo-redo) (vundo)))
         (keymap-set vundo-mode-map  "C-_" 'vundo-backward)
         (keymap-set vundo-mode-map  "M-_" 'vundo-forward)
         )
