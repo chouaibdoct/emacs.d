@@ -678,7 +678,7 @@
 (use-package ansi-color
   :hook (compilation-filter . ansi-color-compilation-filter))
 
-(setq compile-command "cmake --build ./build")
+;;(setq compile-command "cmake --build ./build")
 #+end_src
 ** eglot
 #+begin_src emacs-lisp :tangle yes
