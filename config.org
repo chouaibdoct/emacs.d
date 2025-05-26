@@ -553,69 +553,72 @@
 #+end_src
 * consult
 #+begin_src emacs-lisp :tangle yes
-(use-package consult 
-  :ensure t
-  :demand t
-  :bind (
-         ("C-s" . consult-line)
-;;	 ("C-s" . consult-line)
+  (use-package consult 
+    :ensure t
+    :demand t
+    :bind (
+           ("C-s" . consult-line)
+  ;;	 ("C-s" . consult-line)
 
-         ("C-x b" . consult-buffer)
-         ("C-c i" . consult-imenu)
-         ("C-c C-i" . consult-imenu-multi)
-         ("C-x C-b" . consult-buffer-other-window)
-         ("C-x j" . cousult-bookmark)
-         ("C-c b" . consult-project-buffer)
-;;	 ("C-y" . consult-yank-from-kill-ring)
-         ("M-y" . consult-yank-pop)
-         ("M-g M-g" . consult-goto-line-numbers)
-         ("C-x m" . consult-global-mark)
+           ("C-x b" . consult-buffer)
+           ("C-c i" . consult-imenu)
+           ("C-c C-i" . consult-imenu-multi)
+           ("C-x C-b" . consult-buffer-other-window)
+           ("C-x j" . cousult-bookmark)
+           ("C-c b" . consult-project-buffer)
+  ;;	 ("C-y" . consult-yank-from-kill-ring)
+           ("M-y" . consult-yank-pop)
+           ("M-g M-g" . consult-goto-line-numbers)
+           ("C-x m" . consult-global-mark)
 
-         :map minibuffer-local-map
-         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-         ("M-r" . consult-history)
+           :map minibuffer-local-map
+           ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+           ("M-r" . consult-history)
 
-         )
-  :custom
-  (completion-in-region-function #'consult-completion-in-region)
+           )
+    :custom
+    (completion-in-region-function #'consult-completion-in-region)
 
-  ;; (consult-buffer-filter '("\\` " "\\`\\*.*\\*\\'"))
-  (consult-buffer-filter
-   '("\\` " "\\`\\*Completions\\*\\'" "\\`\\*Flymake log\\*\\'" "\\`\\*Semantic SymRef\\*\\'" "\\`\\*tramp/.*\\*\\'" "\\`\\*EGLOT.*\\*\\'" "\\`\\*Async-native-compile-log*\\*\\'" "\\`\\*Messages*\\*\\'" "\\`\\*scratch*\\*\\'") )
+    ;; (consult-buffer-filter '("\\` " "\\`\\*.*\\*\\'"))
+    ;; (consult-buffer-filter
+    ;;  '("\\` " "\\`\\*Completions\\*\\'" "\\`\\*Flymake log\\*\\'" "\\`\\*Semantic SymRef\\*\\'" "\\`\\*tramp/.*\\*\\'" "\\`\\*EGLOT.*\\*\\'" "\\`\\*Async-native-compile-log*\\*\\'" "\\`\\*Messages*\\*\\'" "\\`\\*scratch*\\*\\'") )
 
-  :hook (completion-list-mode . consult-preview-at-point-mode)
+      (consult-buffer-filter
+     '("\\` " "\\`\\*Completions\\*\\'" "\\`\\*Flymake log\\*\\'" "\\`\\*Semantic SymRef\\*\\'" "\\`\\*tramp/.*\\*\\'" "\\`\\*EGLOT.*\\*\\'" "\\`\\*Async-native-compile-log*\\*\\'" "\\`\\*Messages*\\*\\'" "\\`\\*scratch*\\*\\'" "\\`\\*powershell-toast\\*\\'" "\\`\\*dashboard\\*\\'") )
 
-  :init
-  (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
+    :hook (completion-list-mode . consult-preview-at-point-mode)
 
-  :config
-  ;; (consult-customize
-  ;;  consult-theme :preview-key '(:debounce 0.2 any)
-  ;;  consult-ripgrep consult-git-grep consult-grep
-  ;;  consult-bookmark consult-recent-file consult-xref
-  ;;  consult--source-bookmark consult--source-file-register
-  ;;  consult--source-recent-file consult--source-project-recent-file
-  ;;  ;; :preview-key (kbd "M-.")
-  ;;  :preview-key '(:debounce 0.4 any))
+    :init
+    (setq xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref)
 
-  ;; Optionally configure the narrowing key.
-  ;; Both < and C-+ work reasonably well.
+    :config
+    ;; (consult-customize
+    ;;  consult-theme :preview-key '(:debounce 0.2 any)
+    ;;  consult-ripgrep consult-git-grep consult-grep
+    ;;  consult-bookmark consult-recent-file consult-xref
+    ;;  consult--source-bookmark consult--source-file-register
+    ;;  consult--source-recent-file consult--source-project-recent-file
+    ;;  ;; :preview-key (kbd "M-.")
+    ;;  :preview-key '(:debounce 0.4 any))
+
+    ;; Optionally configure the narrowing key.
+    ;; Both < and C-+ work reasonably well.
 
 
-  ;; By default `consult-project-function' uses `project-root' from project.el.
-  ;; Optionally configure a different project root function.
-  ;; There are multiple reasonable alternatives to chose from.
-  ;;;; 1. project.el (the default)
-  ;; (setq consult-project-function #'consult--default-project--function)
-  ;;;; 2. projectile.el (projectile-project-root)
-  ;; (autoload 'projectile-project-root "projectile")
-  ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
-  ;;;; 3. vc.el (vc-root-dir)
-  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
-  ;;;; 4. locate-dominating-file
-  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
-  )
+    ;; By default `consult-project-function' uses `project-root' from project.el.
+    ;; Optionally configure a different project root function.
+    ;; There are multiple reasonable alternatives to chose from.
+    ;;;; 1. project.el (the default)
+    ;; (setq consult-project-function #'consult--default-project--function)
+    ;;;; 2. projectile.el (projectile-project-root)
+    ;; (autoload 'projectile-project-root "projectile")
+    ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
+    ;;;; 3. vc.el (vc-root-dir)
+    ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
+    ;;;; 4. locate-dominating-file
+    ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
+    )
 #+end_src
 * orderless
 #+begin_src emacs-lisp :tangle yes
@@ -1036,7 +1039,7 @@
 #+end_src
 ** org-pdftools
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle yes
   (use-package org-pdftools
     :ensure t
     :config
@@ -1048,7 +1051,9 @@
       )
 
     (defun denote-link-resolver (ID/FILENAME)
-      (if (denote--id-exists-p ID/FILENAME)
+      ;;    (if (denote--id-exists-p ID/FILENAME)
+      (message ID/FILENAME)
+      (if (denote-get-relative-path-by-id ID/FILENAME)
           (denote-get-relative-path-by-id ID/FILENAME)
         (expand-file-name ID/FILENAME)
         )
