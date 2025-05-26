@@ -964,7 +964,24 @@
     (define-pdf-cache-function pagelabels)
     (setq pdf-view-continuous nil)
     (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
+    )
 
+
+#+end_src
+
+
+** saveplace-pdf-view
+#+begin_src emacs-lisp :tangle yes
+  (use-package pdf-view-restore
+  :after pdf-tools
+  :config
+  (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode)
+  (setq pdf-view-restore-filename "~/.emacs.d/.pdf-view-restore")
+  )
+#+end_src
+** org-pdftools
+
+#+begin_src emacs-lisp :tangle no
     (use-package org-pdftools
       :ensure t
   ;;    :after pdf-tools
@@ -986,7 +1003,42 @@
       (setq org-pdftools-path-generator 'denote-link-generator
             org-pdftools-path-resolver 'denote-link-resolver)
 
-      (defun org-pdftools-export (link description format)
+      
+      (org-pdftools-setup-link)
+      )
+    
+
+
+
+
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package org-pdftools
+    :ensure t
+    :init
+    (defalias 'getf 'cl-getf)
+    :config
+    (defun denote-link-generator (FILENAME)
+      (if (denote-file-has-identifier-p FILENAME)
+          (denote-retrieve-filename-identifier FILENAME)
+        (abbreviate-file-name FILENAME)
+        )
+      )
+
+    (defun denote-link-resolver (ID/FILENAME)
+      ;;    (if (denote--id-exists-p ID/FILENAME)
+      (message ID/FILENAME)
+      (if (denote-get-relative-path-by-id ID/FILENAME)
+          (denote-get-relative-path-by-id ID/FILENAME)
+        (expand-file-name ID/FILENAME)
+        )
+      )
+
+    (setq org-pdftools-path-generator 'denote-link-generator
+          org-pdftools-path-resolver 'denote-link-resolver)
+
+    (defun org-pdftools-export (link description format)
         "Export the pdfview LINK with DESCRIPTION for FORMAT from Org files."
         (let* (path loc page)
           (if (string-match "\\(.+\\)::\\(.*\\)" link)
@@ -1020,52 +1072,12 @@
                 ((eq format 'ascii)
                  (format "%s (%s)" description path))
                 (t path))))
-      (org-pdftools-setup-link)
-      )
-    ;; (define-key pdf-view-mode-map (kbd "h") 'pdf-annot-add-highlight-markup-annotation)
-    ;; (define-key pdf-view-mode-map (kbd "t") 'pdf-annot-add-text-annotation)
-    ;; (define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete)
-    )
-#+end_src
 
-** saveplace-pdf-view
-#+begin_src emacs-lisp :tangle yes
-  (use-package pdf-view-restore
-  :after pdf-tools
-  :config
-  (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode)
-  (setq pdf-view-restore-filename "~/.emacs.d/.pdf-view-restore")
-  )
-#+end_src
-** org-pdftools
-
-#+begin_src emacs-lisp :tangle yes
-  (use-package org-pdftools
-    :ensure t
-    :config
-    (defun denote-link-generator (FILENAME)
-      (if (denote-file-has-identifier-p FILENAME)
-          (denote-retrieve-filename-identifier FILENAME)
-        (abbreviate-file-name FILENAME)
-        )
-      )
-
-    (defun denote-link-resolver (ID/FILENAME)
-      ;;    (if (denote--id-exists-p ID/FILENAME)
-      (message ID/FILENAME)
-      (if (denote-get-relative-path-by-id ID/FILENAME)
-          (denote-get-relative-path-by-id ID/FILENAME)
-        (expand-file-name ID/FILENAME)
-        )
-      )
-
-    (setq org-pdftools-path-generator 'denote-link-generator
-          org-pdftools-path-resolver 'denote-link-resolver)
-
+    
     (org-pdftools-setup-link)
     )
-#+end_src
 
+#+end_src
 #+begin_src emacs-lisp :tangle no
   (use-package org-pdftools
     :load-path  "~/.emacs.d/lisp/"
