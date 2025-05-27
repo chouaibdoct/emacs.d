@@ -2,7 +2,7 @@
 
 
 * Emacs General
-#+begin_src emacs-lisp :tangle (when (eq system-type 'windows-nt) "yes")
+#+begin_src emacs-lisp :tangle (if (eq system-type 'windows-nt) "yes" "no")
 (setq package-check-signature nil)
 (use-package gnu-elpa-keyring-update
  :ensure t
@@ -392,12 +392,21 @@
       "/DONE" 'file))
 
 
-  (use-package alert
-    :commands (alert)
-    :config (setq alert-default-style 'toast))
 
-  (use-package alert-toast
-    :after alert)
+   (use-package alert
+    :commands (alert)
+    :config
+    )
+
+  (when (eq system-type 'windows-nt)
+    (use-package alert-toast
+      :after alert
+      :config
+      (setq alert-default-style 'alert-termux-notify)
+      ))
+  (when (eq system-type 'darwin)
+    (setq alert-default-style 'osx-notifier)
+    )
 
   (use-package org-alert
     :ensure t
@@ -406,7 +415,8 @@
      org-alert-interval 300
           )
     :config
-    (org-alert-enable)
+    (when (daemonp)
+     (org-alert-enable))
     )
 
 
@@ -916,6 +926,8 @@
 #+begin_src emacs-lisp :tangle yes
   (use-package dashboard
     :ensure t
+    :init
+    (add-hook 'dashboard-after-initialize-hook #'kill-other-org-buffers)
     :config
     (dashboard-setup-startup-hook)
     (setq initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))
@@ -1091,8 +1103,15 @@
     :config
     ;;
     ;; General key bindings
-    (setq denote-directory (expand-file-name "c:/Users/aliha/Documents/Zotero/"))
-  ;;  (setq denote-known-keywords '("GC" "doct"))
+
+    (setq denote-directory (expand-file-name
+    			  (pcase system-type
+    			    ('windows-nt "c:/Users/aliha/Documents/Zotero/")
+  			    (_ "~/Documents/Zotero/" ) 
+
+    			    )))  
+
+    ;;  (setq denote-known-keywords '("GC" "doct"))
     (setq denote-infer-keywords t)
     (setq denote-sort-keywords t)
     (setq denote-file-type 'org)
@@ -1215,7 +1234,7 @@ for zotero
     (global-set-key (kbd "C-x é") 'split-and-follow-horizontally)
 
     ;;(set-face-attribute 'default nil :family "Inconsolata" :height 140)
-    (set-face-attribute 'default nil :height 140)
+    (set-face-attribute 'default nil :height 145)
     (defun frame-font-height (value)
          "Sets the frame font height default=12"
          (interactive "nFrame font height default =12:")
@@ -1233,7 +1252,7 @@ for zotero
 
 
 * windows specifics
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle (if (eq system-type 'windows-nt) "yes" "no")
    ;; (add-to-list 'default-frame-alist '(undecorated . t)) 
    ;; (menu-bar-mode 1)
 
