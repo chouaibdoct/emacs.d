@@ -1115,8 +1115,9 @@
     (setq denote-sort-keywords t)
     (setq denote-file-type 'org)
     (setq denote-rename-buffer-format "[D] %^s| %t")
-    (denote-rename-buffer-mode)
     
+    (denote-rename-buffer-mode)
+    (setq denote-org-store-link-to-heading t)
     ;;
     ;; Tweaking the frontmatter
     ;; (setq denote-org-front-matter
