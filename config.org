@@ -1,6 +1,5 @@
 #+STARTUP: show2levels
 
-
 * Emacs General
 #+begin_src emacs-lisp :tangle (if (eq system-type 'windows-nt) "yes" "no")
 (setq package-check-signature nil)
