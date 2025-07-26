@@ -210,7 +210,9 @@
   (use-package golden-ratio
     :ensure t
     :config
-  ;;(golden-ratio-mode)
+    ;;(golden-ratio-mode)
+    (setq golden-ratio-exclude-modes '("vundo-mode"))
+    (setq golden-ration-exclude-buffer-names '("*Minibuf-1*"))
     )
 #+end_src
 ** hideshow
