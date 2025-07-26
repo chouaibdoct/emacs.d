@@ -1180,6 +1180,15 @@ for zotero
 
 #+end_src
 
+#+begin_src json :tangle no 
+  for zotero7 renaming
+{{ accessDate suffix= replaceFrom="^(\d{4})-(\d{2})-(\d{2})(\s+)(\d{2})" replaceTo="$1$2$3T$5" regexOpts="gi" }}
+{{ authors suffix="=" prefix="==" join="="}}{{ year }}{{ title prefix="--" replaceFrom=" " replaceTo="-" regexOpts="gi"}}
+
+  with zotmoov and with sci-pdf
+#+end_src
+
+
 * citar
 #+begin_src emacs-lisp :tangle yes
 (use-package citar
