@@ -205,6 +205,14 @@
   ;; (global-set-key (kbd "C-x k") 'delete-window-when-kill-buffer)
   ;; (global-set-key (kbd "C-x k") 'kill-buffer)
 #+end_src
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package golden-ratio
+    :ensure t
+    :config
+  ;;(golden-ratio-mode)
+    )
+#+end_src
 ** hideshow
 #+begin_src emacs-lisp :tangle yes
   (use-package hideshow
@@ -579,7 +587,7 @@
            ("C-c i" . consult-imenu)
            ("C-c C-i" . consult-imenu-multi)
            ("C-x C-b" . consult-buffer-other-window)
-           ("C-x j" . cousult-bookmark)
+           ("C-x j" . consult-bookmark)
            ("C-c b" . consult-project-buffer)
   ;;	 ("C-y" . consult-yank-from-kill-ring)
            ("M-y" . consult-yank-pop)
