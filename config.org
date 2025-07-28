@@ -938,7 +938,7 @@
 
 
 * dashbord
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
   (use-package dashboard
     :ensure t
     :init
