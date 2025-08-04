@@ -444,9 +444,9 @@
     :ensure t
     :defer t
     :init
-    (setq olivetti-body-width .67)
+    (setq olivetti-body-width .9)
     :config
-    (olivetti-set-width 130)
+;;    (olivetti-set-width 130)
 
     :hook (org-mode . olivetti-mode)
     )
@@ -523,35 +523,34 @@
 #+end_src
 * themes
 #+begin_src emacs-lisp :tangle yes
-    (use-package doom-themes
-      :ensure t
-      :defer t
-      :config
-      (doom-themes-visual-bell-config)
-      )
-    (use-package doom-modeline
+      (use-package doom-themes
         :ensure t
-  ;;      :defer t
+        :defer t
         :config
-        (doom-modeline-mode)
+        (doom-themes-visual-bell-config)
         )
+      (use-package doom-modeline
+          :ensure t
+    ;;      :defer t
+          :config
+          (doom-modeline-mode)
+          )
 
-    (use-package ef-themes
-        :ensure t
-        :config
-        ;; (setq ef-themes-mixed-fonts t
-        ;; 	  ef-themes-variable-pitch-ui t)
-        (load-theme 'ef-day)
-        )
+      (use-package ef-themes
+          :ensure t
+          :config
+          ;; (setq ef-themes-mixed-fonts t
+          ;; 	  ef-themes-variable-pitch-ui t)
+          (load-theme 'ef-day)
+          )
 
-  (defun my/apply-theme (appearance)
-    "Load theme, taking current system APPEARANCE into consideration."
-    (mapc #'disable-theme custom-enabled-themes)
-    (pcase appearance
-      ('light (load-theme 'ef-light t))
-      ('dark (load-theme 'ef-winter t))))
+  (use-package auto-dark
+    :ensure t
+    :custom
+    (auto-dark-themes '((ef-night) (ef-light) ))
+    (auto-dark-allow-osascript (eq system-type 'darwin))
 
-  (add-hook 'ns-system-appearance-change-functions #'my/apply-theme)
+    :config (auto-dark-mode))
 #+end_src
 * vertico / margilinea /savehist
 #+begin_src emacs-lisp :tangle yes
