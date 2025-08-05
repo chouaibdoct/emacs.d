@@ -885,6 +885,16 @@
     (setq matlab-shell-command-switches (list "-nodesktop"))
     )
 #+end_src
+
+** Python
+needs installation of ipython , python-lsp-server packages 
+
+#+begin_src emacs-lisp :tangle yes
+(setq python-shell-interpreter "ipython"
+      python-shell-interpreter-args "--simple-prompt -i")
+(add-hook 'python-mode-hook 'eglot-ensure)  ; Enable LSP
+#+end_src
+
 * magit / diff-h
 
 #+begin_src emacs-lisp :tangle yes
