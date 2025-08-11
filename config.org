@@ -541,16 +541,21 @@
           :config
           ;; (setq ef-themes-mixed-fonts t
           ;; 	  ef-themes-variable-pitch-ui t)
-          (load-theme 'ef-day)
           )
 
-  (use-package auto-dark
+  (use-package standard-themes
     :ensure t
-    :custom
-    (auto-dark-themes '((ef-night) (ef-light) ))
-    (auto-dark-allow-osascript (eq system-type 'darwin))
+    )
 
-    :config (auto-dark-mode))
+  (load-theme 'modus-operandi)
+  (fringe-mode 0)
+  ;; (use-package auto-dark
+  ;;   :ensure t
+  ;;   :custom
+  ;;   (auto-dark-themes '((ef-night) (ef-light) ))
+  ;;   (auto-dark-allow-osascript (eq system-type 'darwin))
+
+  ;;   :config (auto-dark-mode))
 #+end_src
 * vertico / margilinea /savehist
 #+begin_src emacs-lisp :tangle yes
@@ -947,7 +952,7 @@ needs installation of ipython , python-lsp-server packages
 
 
 * dashbord
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle yes
   (use-package dashboard
     :ensure t
     :init
