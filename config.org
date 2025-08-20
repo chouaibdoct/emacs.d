@@ -2,11 +2,11 @@
 
 * Emacs General
 #+begin_src emacs-lisp :tangle (if (eq system-type 'windows-nt) "yes" "no")
-(setq package-check-signature nil)
-(use-package gnu-elpa-keyring-update
- :ensure t
- )
- (setq package-check-signature 'allow-unsigned )
+  (setq package-check-signature nil)
+  (use-package gnu-elpa-keyring-update
+    :ensure t
+    )
+  (setq package-check-signature 'allow-unsigned )
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -523,39 +523,81 @@
 #+end_src
 * themes
 #+begin_src emacs-lisp :tangle yes
-      (use-package doom-themes
-        :ensure t
-        :defer t
-        :config
-        (doom-themes-visual-bell-config)
-        )
-      (use-package doom-modeline
+        (use-package doom-themes
           :ensure t
-    ;;      :defer t
+          :defer t
           :config
-          (doom-modeline-mode)
+          (doom-themes-visual-bell-config)
           )
+        (use-package doom-modeline
+            :ensure t
+      ;;      :defer t
+            :config
+            (doom-modeline-mode)
+            )
 
-      (use-package ef-themes
-          :ensure t
-          :config
-          ;; (setq ef-themes-mixed-fonts t
-          ;; 	  ef-themes-variable-pitch-ui t)
-          )
+        (use-package ef-themes
+            :ensure t
+            :config
+            ;; (setq ef-themes-mixed-fonts t
+            ;; 	  ef-themes-variable-pitch-ui t)
+            )
 
-  (use-package standard-themes
-    :ensure t
+    (use-package standard-themes
+      :ensure t
+      )
+
+    ;;(load-theme 'modus-operandi)
+    (fringe-mode 0)
+
+  (defun activate-theme (output)
+    (if (string-equal "true\n" output) (load-theme 'modus-vivendi) (load-theme 'modus-operandi) )
     )
 
-  (load-theme 'modus-operandi)
-  (fringe-mode 0)
-  ;; (use-package auto-dark
-  ;;   :ensure t
-  ;;   :custom
-  ;;   (auto-dark-themes '((ef-night) (ef-light) ))
-  ;;   (auto-dark-allow-osascript (eq system-type 'darwin))
+  (defun my-run-command-async (command)
+    "Run COMMAND asynchronously and call CALLBACK with the output."
+    (make-process
+     :name "async-shell-command"
+     :buffer (generate-new-buffer-name "*async-shell*")
+     :command `("/bin/sh" "-c" ,command)
+     :sentinel (lambda (process event)
+                 (when (string= event "finished\n")
+                   (with-current-buffer (process-buffer process)
+                     (let ((output (buffer-string)))
+                       (activate-theme output)
+                       (kill-buffer (current-buffer))))))))
 
-  ;;   :config (auto-dark-mode))
+  (my-run-command-async "osascript -e \'tell application \"System Events\"
+              tell appearance preferences
+                      if (dark mode) then
+                              return true
+                      else
+                              return false
+                      end if
+              end tell
+      end tell\' " )
+
+
+    ;; (if (string-equal "true" (ns-do-applescript "tell application \"System Events\"
+    ;;         tell appearance preferences
+    ;;                 if (dark mode) then
+    ;;                         return \"true\"
+    ;;                 else
+    ;;                         return \"false\"
+    ;;                 end if
+    ;;         end tell
+    ;; end tell"))
+    ;;     (load-theme 'modus-vivendi)
+    ;;   (load-theme 'modus-operandi))
+
+    ;; (use-package auto-dark
+    ;;   :ensure t
+    ;;   :custom
+    ;;   (auto-dark-themes '((modus-vivendi) (modus-operandi) ))
+    ;;   (auto-dark-allow-osascript (eq system-type 'darwin))
+    ;;   (auto-dark-polling-interval-seconds most-positive-fixnum)
+
+    ;;   :config (auto-dark-mode))
 #+end_src
 * vertico / margilinea /savehist
 #+begin_src emacs-lisp :tangle yes
@@ -958,10 +1000,24 @@ needs installation of ipython , python-lsp-server packages
     :init
     (add-hook 'dashboard-after-initialize-hook #'kill-other-org-buffers)
     :config
-    (dashboard-setup-startup-hook)
-    (setq initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))
-
+    (setq dashboard-items '((recents   . 5)
+                          ;; (bookmarks . 5)
+                          ;; (projects  . 5)
+                          ;; (agenda    . 5)
+                          ;; (registers . 5)
+  			))
+    ;; (dashboard-setup-startup-hook)
+    ;; (setq initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))
     )
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+  (with-current-buffer "*scratch*"
+        (insert (concat ;;initial-scratch-message
+  	      ;; ";; (add-hook 'pdf-view-mode-hook 'pdf-view-themed-minor-mode)\n"
+  		      ";; ((\lambda() (dashboard-setup-startup-hook) (dashboard-open)))"
+  		      )))
+
 #+end_src
 * xref
 #+begin_src emacs-lisp :tangle yes
@@ -993,17 +1049,23 @@ needs installation of ipython , python-lsp-server packages
     :commands (pdf-view-mode pdf-tools-install)
     :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
     :magic ("%PDF" . pdf-view-mode)
+    :init
+    (defun pdf-themed-on-themes()
+      (when (seq-intersection '(modus-vivendi modus-vivendi-tinted ef-night ef-winter ) custom-enabled-themes)
+        (pdf-view-themed-minor-mode) ))
     :hook   (
              ;; (pdf-view-mode . pdf-view-themed-minor-mode)
              (pdf-view-mode . pdf-tools-enable-minor-modes)
+  	   ( pdf-view-mode .  pdf-themed-on-themes)
              )
-
     :config
     (pdf-tools-install)
     (setq pdf-view-resize-factor 1.1)
     (setq-default pdf-view-display-size 'fit-width)
     (define-pdf-cache-function pagelabels)
     (setq pdf-view-continuous nil)
+    
+
     (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
     )
 
