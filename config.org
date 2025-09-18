@@ -840,33 +840,9 @@
     :init
   ;;  (yas-global-mode 1)
     :config
-    (with-eval-after-load 'eglot
-          (add-to-list 'eglot-server-programs
-              '((c++-mode c-mode c-ts-mode c++-ts-mode)
-                   . ("clangd"
-                         "-j=2"
-                         "--log=error"
-                         ;; "--malloc-trim"
-                         "--background-index"
-                         ;; "--background-index-priority=background" ;;; =background  ; low    ;normal 
-                         "--clang-tidy"
-                         ;; ;; "--cross-file-rename"
-                         "--completion-style=detailed"
-                         "--pch-storage=disk"
-                         "--header-insertion=never"
-                         ;; ;; "--header-insertion-decorators=0"
-                         ))))
-    (with-eval-after-load 'eglot
-          (add-to-list 'eglot-server-programs
-              '(qml-mode
-                   . ("/usr/local/bin/qmlls" "--build-dir=~/qttest/gallery/build/"))))
 
-    (with-eval-after-load 'eglot
-            (add-to-list 'eglot-server-programs
-                '(f90-mode
-                     . ("fortls" "--notify_init" "--nthreads=4"))))
-    :hook
-    ((c-mode-common . eglot-ensure))
+    ;; :hook
+    ;; ((c-mode-common . eglot-ensure))
     :bind (:map eglot-mode-map
             ("M-RET" . eglot-code-actions)
             ("C-c r" . eglot-rename)
@@ -910,15 +886,101 @@
     )
 #+end_src
 
+** lsp
+#+begin_src emacs-lisp :tangle yes
+  (use-package lsp-mode
+    :ensure t
+    :commands (lsp lsp-deferred)
+    :hook (lsp-mode . lsp-enable-which-key-integration)
+    :custom
+    (read-process-output-max (* 1024 1024))
+    :init
+    (setq lsp-completion-provider :none)
+    (setq lsp-keymap-prefix "C-c")
+    (setq lsp-diagnostics-provider :flaymake)
+    )
+  (use-package lsp-ui
+    :ensure
+    :hook (lsp-mode . lsp-ui-mode)
+    )
+
+
+  (setq lsp-postgres-server-path "/usr/local/bin/postgrestools")
+
+#+end_src
 
 ** cmake
 #+begin_src emacs-lisp :tangle yes
-(use-package cmake-mode
-  :ensure t
-  )
+  (use-package cmake-ts-mode
+    :ensure t
+    :init
+    (add-to-list 'major-mode-remap-alist '(cmake-mode . cmake-ts-mode))
+
+    (with-eval-after-load 'eglot
+      (add-to-list 'eglot-server-programs `((cmake-ts-mode) . ("cmake-language-server")))
+      )
+    :hook
+    ((cmake-ts-mode . eglot-ensure))
+    )
 #+end_src
 
+** c/c++
+#+begin_src emacs-lisp :tangle yes
+  (use-package cc-mode
+    :init
+    (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+    (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+    (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
 
+    (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+    (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+    (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
+
+    
+    :hook
+    ((c-mode-common . eglot-ensure)
+     (c-ts-mode . eglot-ensure)
+     (c++-ts-mode . eglot-ensure)
+     )
+    :config
+    (with-eval-after-load 'eglot
+            (add-to-list 'eglot-server-programs
+                '((c++-mode c-mode c-ts-mode c++-ts-mode)
+                     . ("clangd"
+                           "-j=2"
+                           "--log=error"
+                           ;; "--malloc-trim"
+                           "--background-index"
+                           ;; "--background-index-priority=background" ;;; =background  ; low    ;normal 
+                           "--clang-tidy"
+                           ;; ;; "--cross-file-rename"
+                           "--completion-style=detailed"
+                           "--pch-storage=disk"
+                           "--header-insertion=never"
+                           ;; ;; "--header-insertion-decorators=0"
+                           ))))
+    )
+#+end_src
+
+** qml
+#+begin_src emacs-lisp :tangle no
+    (with-eval-after-load 'eglot
+          (add-to-list 'eglot-server-programs
+              '(qml-mode
+                   . ("/usr/local/bin/qmlls" "--build-dir=~/qttest/gallery/build/"))))
+
+#+end_src
+** fortran
+#+begin_src emacs-lisp :tangle no
+  (use-package fortran
+    :defer t
+    :config
+    (with-eval-after-load 'eglot
+            (add-to-list 'eglot-server-programs
+                '(f90-mode
+                     . ("fortls" "--notify_init" "--nthreads=4"))))  
+    )
+#+end_src
 ** Matlab
 #+begin_src emacs-lisp :tangle yes
   (use-package matlab-mode
@@ -937,9 +999,47 @@
 needs installation of ipython , python-lsp-server packages 
 
 #+begin_src emacs-lisp :tangle yes
-(setq python-shell-interpreter "ipython"
+  (use-package python
+    :defer t
+    :custom
+    ( python-shell-interpreter "ipython"
       python-shell-interpreter-args "--simple-prompt -i")
-(add-hook 'python-mode-hook 'eglot-ensure)  ; Enable LSP
+    :hook
+    (python-mode-hook . eglot-ensure)  ; Enable LSP
+  )
+#+end_src
+
+** sql
+#+begin_src emacs-lisp :tangle yes
+  ;; (use-package sql
+
+  ;;   :config
+    ;; (with-eval-after-load 'eglot
+    ;;           (add-to-list 'eglot-server-programs
+    ;;               '(sql-mode 
+    ;;                    . ("/usr/local/bin/postgrestools" "lsp-proxy" ))))
+    ;; (with-eval-after-load 'eglot
+    ;;           (add-to-list 'eglot-server-programs
+    ;;               '(sql-mode  .  ("/usr/local/bin/sqls"))))
+
+    ;; (setq lsp-postgres-server-path "/usr/local/bin/postgrestools")
+    ;;  (setq lsp-sqls-server "/usr/local/bin/sqls")
+
+    ;; )
+
+  (use-package sql
+    :ensure t
+    :config
+    (with-eval-after-load 'eglot
+     (add-to-list 'eglot-server-programs
+                 `(sql-mode . ,(eglot-alternatives
+                                '(("/usr/local/bin/postgrestools" "lsp-proxy")
+                                  ("/usr/local/bin/sqls"))))))
+
+    (setq lsp-postgres-server-path "/usr/local/bin/postgrestools")
+    (setq lsp-sqls-server "/usr/local/bin/sqls")
+    
+    )
 #+end_src
 
 * magit / diff-h
