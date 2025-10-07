@@ -1406,7 +1406,7 @@ for zotero
     :no-require
     :custom
     (org-cite-global-bibliography '("~/Documents/Zotero/MyLib.bib" "~/Documents/Zotero/MyLib2.bib" ))
-    (citar-bibliography '("~/Documents/Zotero/MyLib.bib"))
+    (citar-bibliography '("~/Documents/Zotero/MyLib.bib" "~/Documents/Zotero/MyLib2.bib"))
     (org-cite-insert-processor 'citar)
     (org-cite-follow-processor 'citar)
     (org-cite-activate-processor 'citar)
