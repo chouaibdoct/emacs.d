@@ -309,11 +309,19 @@
 #+end_src
 ** expand-region
 #+begin_src emacs-lisp :tangle yes
-(use-package expand-region
-  :ensure t
-  :bind (("C-M-SPC" . er/expand-region)
-	 ("M--" . er/contract-region))
-  )
+  (use-package expand-region
+    :ensure t
+    :bind (("C-M-SPC" . er/expand-region)
+  	 ("M--" . er/contract-region))
+    )
+
+  ;; (use-package expreg
+  ;;   :ensure t
+  ;;   :bind (("C-M-SPC" . expreg-expand)
+  ;; 	 ("M--" . expreg-contract))
+  ;;   :config
+  ;;   (set 'expreg-restore-point-on-quit nil)
+  ;;   )
 #+end_src
 * org-mode
 #+begin_src emacs-lisp :tangle yes
@@ -916,9 +924,14 @@
     :init
     (add-to-list 'major-mode-remap-alist '(cmake-mode . cmake-ts-mode))
 
+    ;; (with-eval-after-load 'eglot
+    ;;   (add-to-list 'eglot-server-programs `((cmake-ts-mode) . ("cmake-language-server")))
+    ;;   )
     (with-eval-after-load 'eglot
-      (add-to-list 'eglot-server-programs `((cmake-ts-mode) . ("cmake-language-server")))
-      )
+       (add-to-list 'eglot-server-programs
+                   `(cmake-ts-mode . ,(eglot-alternatives
+                                  '(("neocmakelsp" "--stdio")
+                                    ("cmake-language-server"))))))
     :hook
     ((cmake-ts-mode . eglot-ensure))
     )
@@ -990,7 +1003,7 @@
     :bind(:map matlab-mode-map
                ("M-;" . matlab-shell-locate-fcn))
     :init
-    (setq matlab-shell-command "/Applications/Matlab_R2020b.app/bin/matlab")
+    (setq matlab-shell-command "/Applications/MATLAB_R2022b.app/bin/matlab")
     (setq matlab-shell-command-switches (list "-nodesktop"))
     )
 #+end_src
@@ -1001,13 +1014,25 @@ needs installation of ipython , python-lsp-server packages
 #+begin_src emacs-lisp :tangle yes
   (use-package python
     :defer t
-    :custom
-    ( python-shell-interpreter "ipython"
-      python-shell-interpreter-args "--simple-prompt -i")
+    ;; :custom
+    ;; ( python-shell-interpreter "python3.13")
+    ;;   ;; python-shell-interpreter-args " -i") ;;
     :hook
     (python-mode-hook . eglot-ensure)  ; Enable LSP
-  )
+    )
+
+  (use-package py-vterm-interaction
+    :ensure t
+    :defer t
+    :hook (python-mode . py-vterm-interaction-mode)
+    :config
+    ;;; Suggested:
+    (setq-default py-vterm-interaction-repl-program "ipython")
+    (setq-default py-vterm-interaction-silent-cells t)
+    )
+
 #+end_src
+
 
 ** sql
 #+begin_src emacs-lisp :tangle yes
@@ -1041,6 +1066,24 @@ needs installation of ipython , python-lsp-server packages
     
     )
 #+end_src
+
+** restclient
+#+begin_src emacs-lisp :tangle yes
+  (use-package restclient
+    :ensure t
+    :defer t
+    )
+
+  (use-package verb
+    :ensure t
+    :config
+    (with-eval-after-load 'org
+      (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
+    )
+#+end_src
+
+** Elm
+
 
 * magit / diff-h
 
@@ -1133,14 +1176,6 @@ needs installation of ipython , python-lsp-server packages
            (t
             'grep))))
 #+end_src
-* restclient
-#+begin_src emacs-lisp :tangle yes
-(use-package restclient
-  :ensure t
-  :defer t
-  )
-#+end_src
-
 * pdf-tools
 #+begin_src emacs-lisp :tangle yes
   (use-package pdf-tools
@@ -1367,31 +1402,31 @@ for zotero
 
 * citar
 #+begin_src emacs-lisp :tangle yes
-(use-package citar
-  :no-require
-  :custom
-  (org-cite-global-bibliography '("~/Documents/Zotero/MyLib.bib"))
-  (citar-bibliography '("~/Documents/Zotero/MyLib.bib"))
-  (org-cite-insert-processor 'citar)
-  (org-cite-follow-processor 'citar)
-  (org-cite-activate-processor 'citar)
-  (citar-bibliography org-cite-global-bibliography)
-  (citar-library-paths (list denote-directory))
-  :config
-  (use-package citar-embark
-    :ensure t
-    :after citar embark
+  (use-package citar
     :no-require
+    :custom
+    (org-cite-global-bibliography '("~/Documents/Zotero/MyLib.bib" "~/Documents/Zotero/MyLib2.bib" ))
+    (citar-bibliography '("~/Documents/Zotero/MyLib.bib"))
+    (org-cite-insert-processor 'citar)
+    (org-cite-follow-processor 'citar)
+    (org-cite-activate-processor 'citar)
+    (citar-bibliography org-cite-global-bibliography)
+    (citar-library-paths (list denote-directory))
     :config
-    (setq citar-at-point-function 'embark-act)
-    (citar-embark-mode)
-    )
-  
-  ;; optional: org-cite-insert is also bound to C-c C-x C-@
-  :bind
-  (("C-c d o" . citar-open)
-   :map org-mode-map :package org
-   ("C-c b" . #'org-cite-insert)))
+    (use-package citar-embark
+      :ensure t
+      :after citar embark
+      :no-require
+      :config
+      (setq citar-at-point-function 'embark-act)
+      (citar-embark-mode)
+      )
+    
+    ;; optional: org-cite-insert is also bound to C-c C-x C-@
+    :bind
+    (("C-c d o" . citar-open)
+     :map org-mode-map :package org
+     ("C-c b" . #'org-cite-insert)))
 #+end_src
 
 
