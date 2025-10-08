@@ -531,33 +531,36 @@
 #+end_src
 * themes
 #+begin_src emacs-lisp :tangle yes
-        (use-package doom-themes
-          :ensure t
-          :defer t
-          :config
-          (doom-themes-visual-bell-config)
-          )
-        (use-package doom-modeline
-            :ensure t
-      ;;      :defer t
-            :config
-            (doom-modeline-mode)
-            )
+  (use-package doom-themes
+    :ensure t
+    :defer t
+    :config
+    (doom-themes-visual-bell-config)
+    )
+  (use-package doom-modeline
+    :ensure t
+    ;;      :defer t
+    :config
+    (doom-modeline-mode)
+    )
 
-        (use-package ef-themes
-            :ensure t
-            :config
-            ;; (setq ef-themes-mixed-fonts t
-            ;; 	  ef-themes-variable-pitch-ui t)
-            )
+  (use-package ef-themes
+    :ensure t
+    :config
+    ;; (setq ef-themes-mixed-fonts t
+    ;; 	  ef-themes-variable-pitch-ui t)
+    )
 
-    (use-package standard-themes
-      :ensure t
-      )
+  (use-package standard-themes
+    :ensure t
+    )
 
-    ;;(load-theme 'modus-operandi)
-    (fringe-mode 0)
+  ;;(load-theme 'modus-operandi)
+  (fringe-mode 0)
+  
+#+end_src
 
+#+begin_src emacs-lisp :tangle (if (eq system-type 'darwin) "yes" "no")
   (defun activate-theme (output)
     (if (string-equal "true\n" output) (load-theme 'modus-vivendi) (load-theme 'modus-operandi) )
     )
@@ -575,6 +578,7 @@
                        (activate-theme output)
                        (kill-buffer (current-buffer))))))))
 
+
   (my-run-command-async "osascript -e \'tell application \"System Events\"
               tell appearance preferences
                       if (dark mode) then
@@ -586,26 +590,27 @@
       end tell\' " )
 
 
-    ;; (if (string-equal "true" (ns-do-applescript "tell application \"System Events\"
-    ;;         tell appearance preferences
-    ;;                 if (dark mode) then
-    ;;                         return \"true\"
-    ;;                 else
-    ;;                         return \"false\"
-    ;;                 end if
-    ;;         end tell
-    ;; end tell"))
-    ;;     (load-theme 'modus-vivendi)
-    ;;   (load-theme 'modus-operandi))
+  ;; (if (string-equal "true" (ns-do-applescript "tell application \"System Events\"
+  ;;         tell appearance preferences
+  ;;                 if (dark mode) then
+  ;;                         return \"true\"
+  ;;                 else
+  ;;                         return \"false\"
+  ;;                 end if
+  ;;         end tell
+  ;; end tell"))
+  ;;     (load-theme 'modus-vivendi)
+  ;;   (load-theme 'modus-operandi))
 
-    ;; (use-package auto-dark
-    ;;   :ensure t
-    ;;   :custom
-    ;;   (auto-dark-themes '((modus-vivendi) (modus-operandi) ))
-    ;;   (auto-dark-allow-osascript (eq system-type 'darwin))
-    ;;   (auto-dark-polling-interval-seconds most-positive-fixnum)
+  ;; (use-package auto-dark
+  ;;   :ensure t
+  ;;   :custom
+  ;;   (auto-dark-themes '((modus-vivendi) (modus-operandi) ))
+  ;;   (auto-dark-allow-osascript (eq system-type 'darwin))
+  ;;   (auto-dark-polling-interval-seconds most-positive-fixnum)
 
-    ;;   :config (auto-dark-mode))
+  ;;   :config (auto-dark-mode))
+
 #+end_src
 * vertico / margilinea /savehist
 #+begin_src emacs-lisp :tangle yes
