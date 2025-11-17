@@ -209,10 +209,13 @@
 #+begin_src emacs-lisp :tangle yes
   (use-package golden-ratio
     :ensure t
+    :bind ("C-x C-3" . golden-ratio)
+
     :config
     ;;(golden-ratio-mode)
     (setq golden-ratio-exclude-modes '("vundo-mode"))
     (setq golden-ration-exclude-buffer-names '("*Minibuf-1*"))
+    
     )
 #+end_src
 ** hideshow
