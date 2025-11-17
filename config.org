@@ -865,16 +865,30 @@
 
     )
 #+end_src
-
+** eldoc
+#+begin_src emacs-lisp :tangle yes
+  (use-package eldoc
+    :defer t
+    :config
+    (defun eldoc-and-follow ()
+      (interactive)
+      (eldoc)
+      (other-window 1)
+      )
+    :bind (("M-h" . eldoc-and-follow)
+  	 ("C-c h" . eldoc)
+  	 )
+    )
+#+end_src
 ** eldoc-box
 #+begin_src emacs-lisp :tangle yes
-(use-package eldoc-box
-  :ensure t
-  :defer t
-  :after eglot
-  :config
-  (add-hook 'eglot-managed-mode-hook #'eldoc-box-hover-mode t)
-  )
+  (use-package eldoc-box
+    :ensure t
+    :defer t
+    :after eglot
+    :config
+    (add-hook 'eglot-managed-mode-hook #'eldoc-box-hover-mode t)
+    )
 #+end_src
 
 ** flymake / flycheck
@@ -1009,8 +1023,9 @@
                ("M-;" . matlab-shell-locate-fcn))
     :init
     (setq matlab-shell-command "/Applications/MATLAB_R2022b.app/bin/matlab")
-    (setq matlab-shell-command-switches (list "-nodesktop"))
+    (setq matlab-shell-command-switches  (list "-nodesktop"))
     )
+    
 #+end_src
 
 ** Python
@@ -1019,9 +1034,9 @@ needs installation of ipython , python-lsp-server packages
 #+begin_src emacs-lisp :tangle yes
   (use-package python
     :defer t
-    ;; :custom
-    ;; ( python-shell-interpreter "python3.13")
-    ;;   ;; python-shell-interpreter-args " -i") ;;
+    :custom
+    ( python-shell-interpreter "python3")
+;;    (python-shell-interpreter-args " -i") ;;
     :hook
     (python-mode-hook . eglot-ensure)  ; Enable LSP
     )
@@ -1036,6 +1051,8 @@ needs installation of ipython , python-lsp-server packages
     (setq-default py-vterm-interaction-silent-cells t)
     )
 
+  (use-package uv-mode
+    :hook (python-mode . uv-mode-auto-activate-hook))
 #+end_src
 
 
