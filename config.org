@@ -309,19 +309,19 @@
 #+end_src
 ** expand-region
 #+begin_src emacs-lisp :tangle yes
-  (use-package expand-region
-    :ensure t
-    :bind (("C-M-SPC" . er/expand-region)
-  	 ("M--" . er/contract-region))
-    )
-
-  ;; (use-package expreg
+  ;; (use-package expand-region
   ;;   :ensure t
-  ;;   :bind (("C-M-SPC" . expreg-expand)
-  ;; 	 ("M--" . expreg-contract))
-  ;;   :config
-  ;;   (set 'expreg-restore-point-on-quit nil)
+  ;;   :bind (("C-M-SPC" . er/expand-region)
+  ;; 	 ("M--" . er/contract-region))
   ;;   )
+
+  (use-package expreg
+    :ensure t
+    :bind (("C-M-SPC" . expreg-expand)
+  	 ("M--" . expreg-contract))
+    :config
+    (set 'expreg-restore-point-on-quit nil)
+    )
 #+end_src
 * org-mode
 #+begin_src emacs-lisp :tangle yes
@@ -1032,27 +1032,41 @@
 needs installation of ipython , python-lsp-server packages 
 
 #+begin_src emacs-lisp :tangle yes
+  (use-package flymake-ruff
+    :ensure t
+    :defer t
+    )
+
+
   (use-package python
     :defer t
+    :init
+    (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
     :custom
     ( python-shell-interpreter "python3")
-;;    (python-shell-interpreter-args " -i") ;;
-    :hook
-    (python-mode-hook . eglot-ensure)  ; Enable LSP
+    ;;    (python-shell-interpreter-args " -i") ;;
+    :hook(
+    (python-ts-mode . eglot-ensure)  ; Enable LSP
+    (python-ts-mode . flymake-ruff-load))
     )
 
   (use-package py-vterm-interaction
     :ensure t
     :defer t
-    :hook (python-mode . py-vterm-interaction-mode)
+    :hook (python-ts-mode . py-vterm-interaction-mode)
     :config
-    ;;; Suggested:
+      ;;; Suggested:
     (setq-default py-vterm-interaction-repl-program "ipython")
     (setq-default py-vterm-interaction-silent-cells t)
     )
 
   (use-package uv-mode
-    :hook (python-mode . uv-mode-auto-activate-hook))
+    :hook (python-ts-mode . uv-mode-auto-activate-hook))
+
+  (use-package python-pytest
+    :ensure t
+    :bind (:map python-mode-map
+           ("C-c t p" . python-pytest-dispatch)))
 #+end_src
 
 
@@ -1080,7 +1094,7 @@ needs installation of ipython , python-lsp-server packages
     (with-eval-after-load 'eglot
      (add-to-list 'eglot-server-programs
                  `(sql-mode . ,(eglot-alternatives
-                                '(("/usr/local/bin/postgrestools" "lsp-proxy")
+                                '(("/usr/local/bin/postgres-language-server-18" "lsp-proxy")
                                   ("/usr/local/bin/sqls"))))))
 
     (setq lsp-postgres-server-path "/usr/local/bin/postgrestools")
