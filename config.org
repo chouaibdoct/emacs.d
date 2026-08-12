@@ -409,7 +409,10 @@
     :after dired
     :bind
     (:map dired-mode-map
-          ("TAB" . dired-subtree-toggle)))
+          ("TAB" . dired-subtree-toggle)
+  	("C-<up>" . dired-subtree-up)
+  	)
+    )
 
     ;; Note: Run `M-x nerd-icons-install-fonts` once after installing this!
   (use-package nerd-icons-dired
