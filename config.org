@@ -37,18 +37,18 @@
   ;;   ;;(add-to-list 'load-path "~/.emacs.d/lisp")
   ;; ;;  (require 'package)
 
-  (setq native-comp-compiler-options '("-O2"
-                                     "-g0"
-                                     "-fomit-frame-pointer"
-                                     "-fno-finite-math-only"))
+  ;; (setq native-comp-compiler-options '("-O2"
+  ;;                                    "-g0"
+  ;;                                    "-fomit-frame-pointer"
+  ;;                                    "-fno-finite-math-only"))
 
-  (defvar my-cpu-architecture "broadwell")
+  ;; (defvar my-cpu-architecture "broadwell")
 
-  (setq native-comp-driver-options `(,(format "-mtune=%s" my-cpu-architecture)
-                                     ,(format "-march=%s" my-cpu-architecture)))
+  ;; (setq native-comp-driver-options `(,(format "-mtune=%s" my-cpu-architecture)
+  ;;                                    ,(format "-march=%s" my-cpu-architecture)))
 
 
-  (use-package use-package
+   (use-package use-package
     :custom
     (use-package-always-ensure t)
     (package-native-compile t)
