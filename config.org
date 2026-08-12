@@ -445,6 +445,12 @@
     :bind
     (:map dired-mode-map
           ("M-o" . dired-launch-command)))
+
+  (use-package dired-sidebar
+    :ensure t
+    :config
+    :bind ("C-x C-j" . dired-sidebar-toggle-sidebar)
+    )
 #+end_src
 * consult
 #+begin_src emacs-lisp :tangle yes
