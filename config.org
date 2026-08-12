@@ -365,38 +365,40 @@
 #+end_src
 * dired-native
 #+begin_src emacs-lisp :tangle yes
-    (use-package dired
-      :ensure nil ; Built-in package, do not download
-      :defer t
-      :config
-      ;; -a: Show all files (including hidden ones)
-      ;; -g: Omit owner column (cleaner layout)
-      ;; -h: Human-readable file sizes (e.g., 4k instead of 4096)
-      ;; --group-directories-first: Group folders above files
-      (setq dired-listing-switches "-agh --group-directories-first")
+  (use-package dired
+    :ensure nil ; Built-in package, do not download
+    :defer t
+    :config
+    ;; -a: Show all files (including hidden ones)
+    ;; -g: Omit owner column (cleaner layout)
+    ;; -h: Human-readable file sizes (e.g., 4k instead of 4096)
+    ;; --group-directories-first: Group folders above files
+    (setq dired-listing-switches "-agh --group-directories-first")
+    
+    (setq dired-dwim-target t)
+    ;; :hook (dired-mode . dired-hide-details-mode) ;; "(" to toggle
 
-      (setq dired-dwim-target t)
-      ;; (setq delete-by-moving-to-trash t)
-      ;; :hook	   
-      ;; (dired-mode . dired-hide-details-mode) ;; "(" to toggle
+    :custom
+    (dired-kill-when-opening-new-dired-buffer t)
+    ;; (dired-listing-switches "-aBhl --group-directories-first -v")
+    (global-auto-revert-non-file-buffers t)
+    ;; (delete-by-moving-to-trash t)
 
-      :custom
-      (dired-kill-when-opening-new-dired-buffer t)
-      :bind
-      (:map dired-mode-map
-            ("<backspace>" . dired-up-directory))
-      )
+    :bind
+    (:map dired-mode-map
+          ("<backspace>" . dired-up-directory))
+    )
 
-    (use-package dired-x
-      :ensure nil 
-      :after dired
-      :hook  (dired-mode . dired-omit-mode)
-      :bind
-      (:map dired-mode-map
-            ("h" . dired-omit-mode))
-      :config
-      (setq dired-omit-files "^\\.")
-     )
+  (use-package dired-x
+    :ensure nil 
+    :after dired
+    :hook  (dired-mode . dired-omit-mode)
+    :bind
+    (:map dired-mode-map
+          ("h" . dired-omit-mode))
+    :config
+    (setq dired-omit-files "^\\.")
+   )
 
 #+end_src
 * dired-impro
@@ -429,7 +431,7 @@
     :after dired
     :bind
     (:map dired-mode-map
-          ("/" . dired-narrow)))
+          (":" . dired-narrow)))
 
   (use-package dired-launch
     :ensure t
