@@ -411,6 +411,7 @@
     (:map dired-mode-map
           ("TAB" . dired-subtree-toggle)
   	("C-<up>" . dired-subtree-up)
+  	("<backtab>" . dired-subtree-cycle)
   	)
     )
 
