@@ -233,7 +233,7 @@
 #+begin_src emacs-lisp :tangle yes
   (use-package hideshow
       :init (add-hook #'prog-mode-hook #'hs-minor-mode)
-      :diminish hs-minor-mode
+      :delight hs-minor-mode
 
       :config
       (defun ll ()
@@ -323,23 +323,23 @@
 
 ** which-key/rainbow/vundo
 #+begin_src emacs-lisp :tangle yes
-  (use-package diminish
+  (use-package delight
    :ensure t )
 
   (use-package which-key
     :ensure t
-    :diminish 
+    :delight
     :init (which-key-mode))
 
   (use-package rainbow-delimiters
     :ensure t
-    :diminish 
+    :delight 
     :hook (prog-mode . rainbow-delimiters-mode)
     )
 
   (use-package gcmh
     :ensure t
-    :diminish
+    :delight
     :hook
     (after-init-hook . gcmh-mode)
     :init
@@ -349,7 +349,7 @@
 
   ;; (use-package undo-tree
   ;;   :ensure t
-  ;;   :diminish
+  ;;   :delight
   ;;   ;;    :bind ("C-M-u" . undo-tree-visualize )
   ;;   :config
   ;;   (global-undo-tree-mode))
@@ -390,7 +390,7 @@
 #+begin_src emacs-lisp :tangle yes
   (use-package whole-line-or-region
     :ensure t
-    :diminish  whole-line-or-region-local-mode
+    :delight  whole-line-or-region-local-mode
     :hook (prog-mode . whole-line-or-region-local-mode))
 #+end_src
 ** vertico / margilinea /savehist
@@ -476,7 +476,7 @@
 * dired-native
 #+begin_src emacs-lisp :tangle yes
   (use-package dired
-    :ensure nil ; Built-in package, do not download
+    :ensure nil 
     :defer t
     :config
     ;; -a: Show all files (including hidden ones)
@@ -528,6 +528,7 @@
     ;; Note: Run `M-x nerd-icons-install-fonts` once after installing this!
   (use-package nerd-icons-dired
     :ensure t
+    :delight
     :after dired
     :hook
     (dired-mode . nerd-icons-dired-mode))
@@ -763,7 +764,7 @@
     (use-package olivetti
       :ensure t
       :defer t
-      :diminish
+      :delight
       :init
       (setq olivetti-body-width .9)
       :config
@@ -1014,7 +1015,7 @@
 #+begin_src emacs-lisp :tangle yes
   (use-package jinx
     :hook (org-mode . global-jinx-mode)
-    :diminish
+    :delight
     :config
      ;; (add-to-list 'vertico-multiform-categories
      ;;              '(jinx grid (vertico-grid-annotate . 20)))
@@ -1058,7 +1059,7 @@
 #+begin_src emacs-lisp :tangle yes
   (use-package eldoc
     :defer t
-    :diminish
+    :delight
     :config
     (defun eldoc-and-follow ()
       (interactive)
@@ -1230,7 +1231,7 @@ needs installation of ipython , python-lsp-server packages
 
   (use-package uv-mode
     :config
-    :diminish
+    :delight
     :hook (python-ts-mode . uv-mode-auto-activate-hook))
 
   ;; (with-eval-after-load 'eglot
